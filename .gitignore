@@ -20,6 +20,8 @@ _cgo_export.*
 _testmain.go
 
 orchent
+src/github.com
+src/gopkg.in
 
 *.exe
 *.test
