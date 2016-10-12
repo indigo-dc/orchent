@@ -19,6 +19,12 @@ _cgo_export.*
 
 _testmain.go
 
+orchent
+
 *.exe
 *.test
 *.prof
+
+# temporary emacs files
+*#
+*~
