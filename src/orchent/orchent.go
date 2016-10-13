@@ -95,6 +95,7 @@ type OrchentDeployment struct {
 	CreationTime string                 `json:"creationTime"`
 	UpdateTime   string                 `json:"updateTime"`
 	Status       string                 `json:"status"`
+	StatusReason string                 `json:"statusReason"`
 	Task         string                 `json:"task"`
 	Callback     string                 `json:"callback"`
 	Output       map[string]interface{} `json:"output"`
@@ -146,6 +147,7 @@ func (depList OrchentDeploymentList) String() string {
 func (dep OrchentDeployment) String() string {
 	lines := []string{"Deployment [" + dep.Uuid + "]:",
 		"  status: " + dep.Status,
+		"  status reason: " + dep.StatusReason,
 		"  creation time: " + dep.CreationTime,
 		"  update time: " + dep.UpdateTime,
 		"  callback: " + dep.Callback,
