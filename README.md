@@ -2,7 +2,7 @@
 The Orchestrator Command Line Client
 
 ## Building
-The go programming language needs to be installed on the system.
+The go programming language version 1.5 or newer needs to be installed on the system.
 Building orchent is just a
 ```
 make
