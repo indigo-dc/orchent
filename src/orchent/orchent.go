@@ -411,6 +411,8 @@ func base_connection(urlBase string) *sling.Sling {
 		token := "Bearer " + tokenValue
 		return base.Set("Authorization", token)
 	} else {
+		fmt.Println(" ")
+		fmt.Println("*** WARNING: no access token has been specified ***")
 		return base
 	}
 }
