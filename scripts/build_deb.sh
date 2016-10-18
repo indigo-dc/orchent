@@ -3,14 +3,14 @@
 my_dir="$(dirname "$0")"
 source $my_dir/package_config.sh
 
-mkdir -p packaging/debian/orchent/usr/bin
-cp orchent packaging/debian/orchent/usr/bin
+mkdir -p $DEB_DIR/usr/bin
+cp orchent $DEB_DIR/usr/bin
 
 #  adjust the config files
-mkdir -p packaging/debian/orchent/DEBIAN
-cat packaging/debian/conf/control | ./scripts/mo > packaging/debian/orchent/DEBIAN/control
-cat packaging/debian/conf/postinst | ./scripts/mo > packaging/debian/orchent/DEBIAN/postinst
+mkdir -p $DEB_DIR/DEBIAN
+cat $DEB_DIR/../conf/control | ./scripts/mo > $DEB_DIR/DEBIAN/control
+cat $DEB_DIR/../conf/postinst | ./scripts/mo > $DEB_DIR/DEBIAN/postinst
 
-dpkg --build packaging/debian/orchent/
+dpkg --build $DEB_DIR
 
-mv packaging/debian/orchent.deb packaging/orchent-$VERSION-1_amd64.deb
+mv $DEB_DIR/../orchent.deb packaging/orchent-$VERSION-1_amd64.deb
