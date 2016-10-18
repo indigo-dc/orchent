@@ -7,8 +7,8 @@ mkdir -p $RPM_DIR/SOURCES
 cp orchent $RPM_DIR/SOURCES
 
 #  adjust the config files
-mkdir -p packaging/rpm/orchent/SPECS
-cat packaging/rpm/conf/orchent.spec | ./scripts/mo > $RPM_DIR/SPECS/orchent.spec
+mkdir -p $RPM_DIR/SPECS
+cat $RPM_DIR/../conf/orchent.spec | ./scripts/mo > $RPM_DIR/SPECS/orchent.spec
 
 rpmbuild --define "_topdir ${RPM_DIR}" -ba $RPM_DIR/SPECS/orchent.spec
 
