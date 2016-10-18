@@ -26,6 +26,8 @@ src/gopkg.in
 *.exe
 *.test
 *.prof
+*.deb
+*.rpm
 
 # temporary emacs files
 *#
