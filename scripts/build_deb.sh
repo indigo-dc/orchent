@@ -1,7 +1,7 @@
 #!/bin/bash
 
-export VERSION=0.1.0
-
+my_dir="$(dirname "$0")"
+source $my_dir/package_config.sh
 
 mkdir -p packaging/debian/orchent/usr/bin
 cp orchent packaging/debian/orchent/usr/bin
