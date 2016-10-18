@@ -13,8 +13,10 @@ import (
 	"strings"
 )
 
+const OrchentVersion string = "0.1.0"
+
 var (
-	app     = kingpin.New("orchent", "The orchestrator client. Please store your access token in the 'ORCHENT_TOKEN' environment variable: 'export ORCHENT_TOKEN=<your access token>'").Version("0.1.0")
+	app     = kingpin.New("orchent", "The orchestrator client. Please store your access token in the 'ORCHENT_TOKEN' environment variable: 'export ORCHENT_TOKEN=<your access token>'").Version(OrchentVersion)
 	hostUrl = app.Flag("url", "the base url of the orchestrator rest interface").Short('u').Required().String()
 
 	lsDep = app.Command("depls", "list all deployments")
