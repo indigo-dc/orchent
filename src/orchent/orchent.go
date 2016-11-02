@@ -13,11 +13,11 @@ import (
 	"strings"
 )
 
-const OrchentVersion string = "0.1.0"
+const OrchentVersion string = "0.2.0"
 
 var (
 	app     = kingpin.New("orchent", "The orchestrator client. Please store your access token in the 'ORCHENT_TOKEN' environment variable: 'export ORCHENT_TOKEN=<your access token>'").Version(OrchentVersion)
-	hostUrl = app.Flag("url", "the base url of the orchestrator rest interface").Short('u').Required().String()
+	hostUrl = app.Flag("url", "the base url of the orchestrator rest interface. Alternative the environment variable 'ORCHENT_URL' can be used: 'export ORCHENT_URL=<the_url>'").Short('u').String()
 
 	lsDep = app.Command("depls", "list all deployments")
 
@@ -100,7 +100,7 @@ type OrchentDeployment struct {
 	StatusReason string                 `json:"statusReason"`
 	Task         string                 `json:"task"`
 	Callback     string                 `json:"callback"`
-	Output       map[string]interface{} `json:"output"`
+	Outputs      map[string]interface{} `json:"outputs"`
 	Links        []OrchentLink          `json:"links"`
 }
 
@@ -141,28 +141,42 @@ func (depList OrchentDeploymentList) String() string {
 	}
 	output = output + fmt.Sprintln("\n")
 	for _, dep := range depList.Deployments {
-		output = output + fmt.Sprintln(dep)
+		output = output + deployment_to_string(dep, true)
 	}
 	return output
 }
 
 func (dep OrchentDeployment) String() string {
+	output := deployment_to_string(dep, false)
+	return output
+}
+
+func deployment_to_string(dep OrchentDeployment, short bool) string {
+	output := ""
 	lines := []string{"Deployment [" + dep.Uuid + "]:",
 		"  status: " + dep.Status,
-		"  status reason: " + dep.StatusReason,
 		"  creation time: " + dep.CreationTime,
 		"  update time: " + dep.UpdateTime,
 		"  callback: " + dep.Callback,
-		"  output: " + fmt.Sprintf("%s", dep.Output),
-		"  links:"}
-	output := ""
+	}
+	if !short {
+		outputs, _ := json.MarshalIndent(dep.Outputs, "  ", "    ")
+		more_lines := []string{
+			"  status reason: " + dep.StatusReason,
+			"  outputs: \n  " + fmt.Sprintf("%s", outputs),
+			"  links:"}
+		lines = append(lines, more_lines...)
+	}
 	for _, line := range lines {
 		output = output + fmt.Sprintf("%s\n", line)
 	}
-	for _, link := range dep.Links {
-		output = output + fmt.Sprintf("    %s\n", link)
+	if !short {
+		for _, link := range dep.Links {
+			output = output + fmt.Sprintf("    %s\n", link)
+		}
 	}
 	return output
+
 }
 
 func (resList OrchentResourceList) String() string {
@@ -428,45 +442,59 @@ func base_url(rawUrl string) string {
 	return urlBase
 }
 
+func get_base_url() string {
+	urlValue, urlSet := os.LookupEnv("ORCHENT_URL")
+	baseUrl := ""
+	if *hostUrl != "" {
+		baseUrl = base_url(*hostUrl)
+	} else if urlSet {
+		baseUrl = base_url(urlValue)
+	} else {
+		fmt.Println("*** ERROR: No url given! Either set the environment varible 'ORCHENT_URL' or use the --url flag")
+		os.Exit(1)
+	}
+	return baseUrl
+}
+
 func main() {
 	switch kingpin.MustParse(app.Parse(os.Args[1:])) {
 	case lsDep.FullCommand():
-		baseUrl := base_url(*hostUrl)
+		baseUrl := get_base_url()
 		base := base_connection(baseUrl)
 		deployments_list(base)
 
 	case showDep.FullCommand():
-		baseUrl := base_url(*hostUrl)
+		baseUrl := get_base_url()
 		base := base_connection(baseUrl)
 		deployment_show(*showDepUuid, base)
 
 	case createDep.FullCommand():
-		baseUrl := base_url(*hostUrl)
+		baseUrl := get_base_url()
 		base := base_connection(baseUrl)
 		deployment_create_update(*createDepTemplate, *createDepParameter, *createDepCallback, nil, base)
 
 	case updateDep.FullCommand():
-		baseUrl := base_url(*hostUrl)
+		baseUrl := get_base_url()
 		base := base_connection(baseUrl)
 		deployment_create_update(*updateDepTemplate, *updateDepParameter, *updateDepCallback, updateDepUuid, base)
 
 	case depTemplate.FullCommand():
-		baseUrl := base_url(*hostUrl)
+		baseUrl := get_base_url()
 		base := base_connection(baseUrl)
 		deployment_get_template(*templateDepUuid, base)
 
 	case delDep.FullCommand():
-		baseUrl := base_url(*hostUrl)
+		baseUrl := get_base_url()
 		base := base_connection(baseUrl)
 		deployment_delete(*delDepUuid, base)
 
 	case lsRes.FullCommand():
-		baseUrl := base_url(*hostUrl)
+		baseUrl := get_base_url()
 		base := base_connection(baseUrl)
 		resources_list(*lsResDepUuid, base)
 
 	case showRes.FullCommand():
-		baseUrl := base_url(*hostUrl)
+		baseUrl := get_base_url()
 		base := base_connection(baseUrl)
 		resource_show(*showResDepUuid, *showResResUuid, base)
 	}
