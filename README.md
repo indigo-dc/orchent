@@ -69,3 +69,4 @@ Deployment [eac4dabb-9613-4026-bac7-6075050308e3]:
     resources [http://orchestrator01-indigo.cloud.ba.infn.it:8080/orchestrator/deployments/eac4dabb-9613-4026-bac7-6075050308e3/resources]
     template [http://orchestrator01-indigo.cloud.ba.infn.it:8080/orchestrator/deployments/eac4dabb-9613-4026-bac7-6075050308e3/template]
 ```
+For more information and more examples please see the [documentation](https://indigo-dc.gitbooks.io/orchent/)
