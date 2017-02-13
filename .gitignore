@@ -22,6 +22,7 @@ _testmain.go
 orchent
 src/github.com
 src/gopkg.in
+vendor/
 
 *.exe
 *.test
