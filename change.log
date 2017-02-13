@@ -1,0 +1,45 @@
+
+UNRELEASED
+
+  * Merge pull request #9 from indigo-dc/packaging
+    
+    Packaging
+  * delete old unused folder
+  * add link to documentation, fix #4
+  * remove building part
+  * Merge pull request #8 from indigo-dc/packaging
+    
+    Packaging
+  * ignore vendor directory
+  * add library locking
+  * add packaing config files
+  * add json config files
+  * use tools like wattson
+  * fix output issued: fix #2
+    
+    shorten output of deployment in lists
+    add support for ORCHENT_URL variable
+  * use constant for version
+  * only use RPM_DIR as reference
+  * only use DEB_DIR as reference
+  * get version from compiled orchent directly
+  * make build_rpm script executable
+  * add basic rpm scripts
+  * add debian package building
+  * set version to 0.1.0 add packaging
+  * add gitbook documentation
+  * add warning if no token is set
+  * add statusReason on deployments
+  * add required version of go to readme
+  * print version during build
+  * add some documentation
+  * ignore fetched packages
+  * initial commit of orchent
+  * Create README.md
+  * Initial commit
+
+  - Bas Wegh <bas.wegh@kit.edu>
+
+-- Bas Wegh <bas.wegh@kit.edu>; Mon, 13 Feb 2017 15:49:48 +0100
+
+
