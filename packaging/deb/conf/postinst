@@ -1,6 +1,0 @@
-#!/bin/sh
-
-if [ -f /usr/bin/orchent ]; then
-  chown root:root /usr/bin/orchent
-  chmod 555 /usr/bin/orchent
-fi
