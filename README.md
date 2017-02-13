@@ -1,13 +1,6 @@
 # orchent
 The Orchestrator Command Line Client
 
-## Building
-The go programming language version 1.5 or newer needs to be installed on the system.
-Building orchent is just a
-```
-make
-```
-
 ## Usage
 orchent helps you as much as possible:
 ```
