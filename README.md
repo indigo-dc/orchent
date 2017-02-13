@@ -1,13 +1,6 @@
 # orchent
 The Orchestrator Command Line Client
 
-## Building
-The go programming language version 1.5 or newer needs to be installed on the system.
-Building orchent is just a
-```
-make
-```
-
 ## Usage
 orchent helps you as much as possible:
 ```
@@ -76,3 +69,4 @@ Deployment [eac4dabb-9613-4026-bac7-6075050308e3]:
     resources [http://orchestrator01-indigo.cloud.ba.infn.it:8080/orchestrator/deployments/eac4dabb-9613-4026-bac7-6075050308e3/resources]
     template [http://orchestrator01-indigo.cloud.ba.infn.it:8080/orchestrator/deployments/eac4dabb-9613-4026-bac7-6075050308e3/template]
 ```
+For more information and more examples please see the [documentation](https://indigo-dc.gitbooks.io/orchent/)
