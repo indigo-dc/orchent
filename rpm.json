@@ -1,0 +1,20 @@
+{
+  "name": "orchent",
+  "version": "!version!",
+  "arch": "!arch!",
+  "release": "1",
+  "summary": "orchent command line client",
+  "group": "Applications/Internet",
+  "license": "LICENSE",
+  "url": "http://github.com/indigo-dc/!name!",
+  "description": "a command line client to use with the INDIGO Orchestrator",
+  "changelog-cmd": "changelog rpm",
+  "files": [
+    {
+      "from": "build/!arch!/!name!",
+      "to": "%{_bindir}/",
+      "base": "build/!arch!/",
+      "type": ""
+    }
+  ]
+}
