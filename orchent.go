@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"crypto/tls"
+	"crypto/x509"
 	"encoding/json"
 	"fmt"
 	"github.com/dghubble/sling"
@@ -13,10 +14,10 @@ import (
 	"strings"
 )
 
-const OrchentVersion string = "0.2.0"
+const OrchentVersion string = "0.4.0"
 
 var (
-	app     = kingpin.New("orchent", "The orchestrator client. Please store your access token in the 'ORCHENT_TOKEN' environment variable: 'export ORCHENT_TOKEN=<your access token>'").Version(OrchentVersion)
+	app     = kingpin.New("orchent", "The orchestrator client. Please store your access token in the 'ORCHENT_TOKEN' environment variable: 'export ORCHENT_TOKEN=<your access token>'. If you need to specify the file containing the trusted root CAs use the 'ORCHENT_CAFILE' environment variable: 'export ORCHENT_CAFILE=<path to file containing trusted CAs>'.").Version(OrchentVersion)
 	hostUrl = app.Flag("url", "the base url of the orchestrator rest interface. Alternative the environment variable 'ORCHENT_URL' can be used: 'export ORCHENT_URL=<the_url>'").Short('u').String()
 
 	lsDep = app.Command("depls", "list all deployments")
@@ -222,16 +223,41 @@ func (page OrchentPage) String() string {
 }
 
 func client() *http.Client {
-	_, set := os.LookupEnv("ORCHENT_INSECURE")
-	if set {
+	ca_file, use_other_ca := os.LookupEnv("ORCHENT_CAFILE")
+
+	if use_other_ca {
+		rootCAs :=  x509.NewCertPool()
+		rootCAs.AppendCertsFromPEM(read_ca_file(ca_file))
 		tr := &http.Transport{
-			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+			TLSClientConfig: &tls.Config{RootCAs: rootCAs},
 		}
 		return &http.Client{Transport: tr}
-	} else {
-		return http.DefaultClient
 	}
+	return http.DefaultClient
 }
+
+func read_ca_file(caFileName  string) []byte {
+	data := make([]byte, 0)
+	caFile, openErr := os.Open(caFileName)
+	if openErr != nil {
+		fmt.Printf("error opening ca-file: %s\n", openErr)
+		return  data[:0]
+	}
+	info, infoErr := caFile.Stat()
+	if infoErr != nil {
+		fmt.Printf("error getting ca-file size: %s\n", infoErr)
+		return  data[:0]
+	}
+	size := info.Size()
+	data = make([]byte, size)
+	count, readErr := caFile.Read(data)
+	if readErr != nil || int64(count) < size {
+		fmt.Printf("error reading the ca-file: %s\n  (read %d/%d)\n", readErr, count, size)
+		return  data[:0]
+	}
+	return data[:count]
+}
+
 
 func deployments_list(base *sling.Sling) {
 	base = base.Get("./deployments")
