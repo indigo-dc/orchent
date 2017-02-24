@@ -45,16 +45,24 @@ Installing on CentOs is also just a
 ```
 yum install golang
 ```
+#### The official go way
+Orchent is following the
+[go code organization rules](https://golang.org/doc/code.html#Organization)
+and should be placed in the `src/github.com/indigo-dc/orchent` sub-directory
+of the `$GOPATH`. So if you have a working go-lang setup, orchent can be easily
+build using `go build`.
 
-The next steps build download and build orchent:
+#### The Fast And Easy Way
+For anyone just wanting to compile orchent without setting up a complete go-lang development
+environment; The next steps build download and build orchent:
 - clone the git repository
 - build the package yourself
-- install the package
 ```
 git clone https://github.com/indigo-dc/orchent
 cd orchent
-make
+./utils/compile.sh
 ```
-the binary executable is in the current direcotry called 'orchent'.
+practically it creates the go development environment for you.
+The binary executable is in the current direcotry called 'orchent'.
 
 One could now copy the binary to e.g. `/usr/bin`.
