@@ -16,6 +16,18 @@ export ORCHENT_TOKEN=<your access token here>
 Now the orchent can perform any operation the access token grants, as long as the access token
 is valid.
 
+## Setting the trusted Certificate Authorities (CAs)
+Usually this part is not needed as most systems come with a sane default setup.
+
+Sometimes you either need or want to specify which CAs you trust anyway.
+You can explicitly tell orchent which file contains all the root CAs that can be
+trusted by using the `ORCHENT_CAFILE` environment variable. The file must contain
+the certficates in the PEM format.
+```
+export ORCHENT_CAFILE=<path to the file containing trusted CAs>
+```
+
+
 ## Using Orchent
 Please make sure you have exported your access token, see above.
 
@@ -26,7 +38,10 @@ The output is:
 $ orchent help
 usage: orchent --url=URL [<flags>] <command> [<args> ...]
 
-The orchestrator client. Please store your access token in the 'ORCHENT_TOKEN' environment variable: 'export ORCHENT_TOKEN=<your access token>'
+The orchestrator client. Please store your access token in the 'ORCHENT_TOKEN' environment
+variable: 'export ORCHENT_TOKEN=<your access token>'. If you need to specify the file
+containing the trusted root CAs use the 'ORCHENT_CAFILE' environment variable:
+'export ORCHENT_CAFILE=<path to file containing trusted CAs>'.
 
 Flags:
       --help     Show context-sensitive help (also try --help-long and --help-man).
