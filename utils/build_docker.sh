@@ -48,7 +48,7 @@ cp $ORCHENT /tmp/orchent_docker/
 cd /tmp/orchent_docker/
 ORCHENT_VERSION=`./orchent --version 2>&1`
 ORCHENT_TAG="orchent:$ORCHENT_VERSION"
-docker image rm "$ORCHENT_TAG"
+docker image rm -f "$ORCHENT_TAG"
 docker build -t "$ORCHENT_TAG" .
 cd $PATH_TO_REPO
 rm -rf /tmp/orchent_docker/
