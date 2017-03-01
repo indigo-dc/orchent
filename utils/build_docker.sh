@@ -38,7 +38,7 @@ echo -n "  sling ... "
 go get github.com/dghubble/sling
 echo "done"
 echo -n "building orchent ... "
-CGO_ENABLED=0 GOOS=linux go build -a -v -o orchent ${GOPATH}/orchent.go
+CGO_ENABLED=0 GOOS=linux go build -a -v -o $ORCHENT ${GOPATH}/orchent.go
 echo "done"
 
 echo "building docker ... "
