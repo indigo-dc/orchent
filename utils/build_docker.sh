@@ -45,6 +45,7 @@ echo "building docker ... "
 mkdir -p /tmp/orchent_docker/
 cp $DOCKERFILE /tmp/orchent_docker/
 cp $ORCHENT /tmp/orchent_docker/
+cp /etc/ssl/certs/ca-certificates.crt /tmp/orchent_docker/
 cd /tmp/orchent_docker/
 ORCHENT_VERSION=`./orchent --version 2>&1`
 ORCHENT_TAG="orchent:$ORCHENT_VERSION"
