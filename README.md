@@ -79,3 +79,22 @@ Deployment [eac4dabb-9613-4026-bac7-6075050308e3]:
     template [http://orchestrator01-indigo.cloud.ba.infn.it:8080/orchestrator/deployments/eac4dabb-9613-4026-bac7-6075050308e3/template]
 ```
 For more information and more examples please see the [documentation](https://indigo-dc.gitbooks.io/orchent/)
+
+
+## using Docker
+If your system is not supported you can still use orchent through a lightweight Docker container.
+Download the container in the release section and import it using the `docker load` command:
+```
+docker load --input orchent_container_0.4.0.tar
+```
+
+After loading the container you can use it to run orchent:
+```
+docker run orchent:0.4.0 --version
+docker run orchent:0.4.0 --help
+```
+
+For information on how to pass environment settings to the docker see
+```
+docker run --help
+```
