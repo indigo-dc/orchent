@@ -58,5 +58,15 @@ docker image rm -f "$ORCHENT_TAG"
 docker build -t "$ORCHENT_TAG" .
 cd $PATH_TO_REPO
 rm -rf /tmp/orchent_docker/
-docker image save --output "$ORCHENT_DOCKER" "$ORCHENT_TAG"
+docker save --output "$ORCHENT_DOCKER" "$ORCHENT_TAG"
 echo "done"
+
+echo " "
+echo " "
+echo " checking image "
+docker image rm -f "$ORCHENT_TAG"
+docker images -a
+docker load --input "$ORCHENT_DOCKER"
+docker run  --rm "$ORCHENT_TAG" --version
+docker images -a
+echo " done "
