@@ -53,7 +53,7 @@ cp /etc/ssl/certs/ca-certificates.crt /tmp/orchent_docker/
 cd /tmp/orchent_docker/
 ORCHENT_VERSION=`./orchent --version 2>&1`
 ORCHENT_TAG="orchent:$ORCHENT_VERSION"
-ORCHENT_DOCKER="$PATH_TO_REPO/orchent_container_${ORCHENT_VERSION}.tgz"
+ORCHENT_DOCKER="$PATH_TO_REPO/orchent_container_${ORCHENT_VERSION}.tar"
 docker image rm -f "$ORCHENT_TAG"
 docker build -t "$ORCHENT_TAG" .
 cd $PATH_TO_REPO
