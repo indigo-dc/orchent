@@ -4,15 +4,22 @@ The Orchestrator Command Line Client
 ## Usage
 orchent helps you as much as possible:
 ```
-./orchent --help
-usage: orchent --url=URL [<flags>] <command> [<args> ...]
+$ orchent --help
+usage: orchent [<flags>] <command> [<args> ...]
 
-The orchestrator client. Please store your access token in the 'ORCHENT_TOKEN' environment variable: 'export ORCHENT_TOKEN=<your access token>'
+The orchestrator client. Please store your access token in the 'ORCHENT_TOKEN'
+environment variable: 'export ORCHENT_TOKEN=<your access token>'. If you need to
+specify the file containing the trusted root CAs use the 'ORCHENT_CAFILE'
+environment variable: 'export ORCHENT_CAFILE=<path to file containing trusted
+CAs>'.
 
 Flags:
-      --help     Show context-sensitive help (also try --help-long and --help-man).
+      --help     Show context-sensitive help (also try --help-long and
+                 --help-man).
       --version  Show application version.
-  -u, --url=URL  the base url of the orchestrator rest interface
+  -u, --url=URL  the base url of the orchestrator rest interface. Alternative
+                 the environment variable 'ORCHENT_URL' can be used: 'export
+                 ORCHENT_URL=<the_url>'
 
 Commands:
   help [<command>...]
@@ -41,6 +48,8 @@ Commands:
 
   resshow <deployment uuid> <resource uuid>
     show a specific resource of a given deployment
+
+
 ```
 
 Before using the orchestrator with orchent you need to export your IAM access token:
