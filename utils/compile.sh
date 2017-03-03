@@ -1,13 +1,19 @@
 #!/bin/bash
 
 GO=`which go`
-PATH_TO_SCRIPT=`readlink -f ${0}`
-PATH_TO_FOLDER=`dirname "$PATH_TO_SCRIPT"`
-
+REALPATH=`which realpath`
 if [ "x$GO" == "x" ]; then
     echo "go missing, please install go 1.5 or newer"
     exit 1
 fi
+
+if [ "x$REALPATH" == "x" ]; then
+    echo "realpath missing, please install it"
+    exit 1
+fi
+
+PATH_TO_SCRIPT=`realpath ${0}`
+PATH_TO_FOLDER=`dirname "$PATH_TO_SCRIPT"`
 
 VERSION=`go version`
 GOPATH=`cd "${PATH_TO_FOLDER}/.." && pwd -P`

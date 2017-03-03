@@ -29,6 +29,8 @@ vendor/
 *.prof
 *.deb
 *.rpm
+*.tgz
+*.tar
 
 # temporary emacs files
 *#
