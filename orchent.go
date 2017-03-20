@@ -14,7 +14,7 @@ import (
 	"strings"
 )
 
-const OrchentVersion string = "0.4.0"
+const OrchentVersion string = "1.0.0"
 
 var (
 	app     = kingpin.New("orchent", "The orchestrator client. Please store your access token in the 'ORCHENT_TOKEN' environment variable: 'export ORCHENT_TOKEN=<your access token>'. If you need to specify the file containing the trusted root CAs use the 'ORCHENT_CAFILE' environment variable: 'export ORCHENT_CAFILE=<path to file containing trusted CAs>'.").Version(OrchentVersion)
