@@ -1,14 +1,50 @@
 
+1.0.0
+
+  * Merge pull request #18 from indigo-dc/release
+
+    version bump 1.0.0, update documentation, fix #17
+  * version bump 1.0.0, update documentation, fix #17
+  * Merge pull request #16 from indigo-dc/docker
+
+    Add scripts to build docker
+  * add *.tar to gitignore
+  * add docker related info
+  * update output to 0.4.0
+  * add testing of exported container
+  * docker exports to tar not tgz
+  * add cleaning before building
+  * add certificate file
+  * force removal of previous docker image
+  * use Orchent variable
+  * use realpath instead of readling, should work on mac
+  * change build command
+  * add script to build and save docker image
+  * Merge pull request #15 from indigo-dc/cafile
+
+    add possibility to set cafile, fix #14
+  * add possibility to set cafile, fix #14
+  * Merge pull request #12 from indigo-dc/fix_makefile
+
+    fix compilation doc, fix #11
+  * fix compilation doc, fix #11
+
+  - Bas Wegh <bas.wegh@kit.edu>
+
+-- Bas Wegh <bas.wegh@kit.edu>; Mon, 20 Mar 2017 08:02:55 +0100
+
+
+
 0.3.1
 
   * Merge pull request #9 from indigo-dc/packaging
-    
+
     Packaging
   * delete old unused folder
   * add link to documentation, fix #4
   * remove building part
   * Merge pull request #8 from indigo-dc/packaging
-    
+
     Packaging
   * ignore vendor directory
   * add library locking
@@ -16,7 +52,7 @@
   * add json config files
   * use tools like wattson
   * fix output issued: fix #2
-    
+
     shorten output of deployment in lists
     add support for ORCHENT_URL variable
   * use constant for version
@@ -41,5 +77,3 @@
   - Bas Wegh <bas.wegh@kit.edu>
 
 -- Bas Wegh <bas.wegh@kit.edu>; Mon, 13 Feb 2017 15:49:48 +0100
-
-
