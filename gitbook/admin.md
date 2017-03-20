@@ -45,6 +45,25 @@ Installing on CentOs is also just a
 ```
 yum install golang
 ```
+
+#### Importing the Docker Container
+If your system is not supported you can still use orchent through a lightweight Docker container.
+Download the container in the release section and import it using the `docker load` command:
+```
+docker load --input orchent_container_1.0.0.tar
+```
+
+After loading the container you can use it to run orchent:
+```
+docker run orchent:1.0.0 --version
+docker run orchent:1.0.0 --help
+```
+
+For information on how to pass environment settings to the docker see
+```
+docker run --help
+```
+
 #### The official go way
 Orchent is following the
 [go code organization rules](https://golang.org/doc/code.html#Organization)
