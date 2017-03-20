@@ -80,7 +80,9 @@ mkdir src
 echo " "
 echo " "
 echo "*** installing glide ***"
-curl https://glide.sh/get | sh
+# curl https://glide.sh/get | sh
+sudo cp $UTILS_DIR/glide /usr/bin/glide
+sudo chmod 555 /usr/bin/glide
 
 
 echo " "
