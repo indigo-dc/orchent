@@ -50,13 +50,13 @@ yum install golang
 If your system is not supported you can still use orchent through a lightweight Docker container.
 Download the container in the release section and import it using the `docker load` command:
 ```
-docker load --input orchent_container_1.0.3.tar
+docker load --input orchent_container_1.0.4.tar
 ```
 
 After loading the container you can use it to run orchent:
 ```
-docker run orchent:1.0.3 --version
-docker run orchent:1.0.3 --help
+docker run orchent:1.0.4 --version
+docker run orchent:1.0.4 --help
 ```
 
 For information on how to pass environment settings to the docker see
