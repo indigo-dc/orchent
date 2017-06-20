@@ -1,6 +1,20 @@
 # orchent
 The Orchestrator Command Line Client
 
+## Building orchent
+
+Before compiling orchent, make sure to install [The Go Programming Language](https://golang.org)
+
+```
+# Building orchent
+git clone https://github.com/indigo-dc/orchent.git
+cd orchent/utils
+./compile.sh
+
+# Test the installation
+./orchent --help
+```
+
 ## Usage
 orchent helps you as much as possible:
 ```
