@@ -9,7 +9,12 @@ Before compiling orchent, make sure to install [The Go Programming Language](htt
 # Building orchent
 git clone https://github.com/indigo-dc/orchent.git
 cd orchent/utils
+
+# Linux
 ./compile.sh
+
+# macOS
+./compile_macos.sh
 
 # Test the installation
 ./orchent --help
