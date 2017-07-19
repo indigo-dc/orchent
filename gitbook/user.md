@@ -59,7 +59,7 @@ Commands:
   help [<command>...]
     Show help.
 
-  depls [<createdBy>]
+  depls [<flags>]
     list deployments
 
   depshow <uuid>
@@ -136,7 +136,8 @@ $ orchent <some command>
 #### Testing the Orchent URL - test
 orchent has a simple way to test if the url points to an orchestrator:
 ```
-orchent test
+$ orchent test
+looks like the orchent url is valid
 ```
 The outpt will let you know if the given url looks fine or not. This should be the first
 test to perform when having issues, as most of the time a simple typo is the cause of all evil.
@@ -152,11 +153,11 @@ The output is a long list of all pages of deployments.
 
 The output can be filtered to a specific user by adding the subject@issuer:
 ```
-$ orchent depls som-uuid-at-iam@https://iam-test.indigo-datacloud.eu/
+$ orchent depls --created_by=som-uuid-at-iam@https://iam-test.indigo-datacloud.eu/
 ```
 There is also a shortcut for the current user - 'me':
 ```
-$ orchent depls me
+$ orchent depls --created_by=me
 ```
 
 #### Show A Specific Deployment - depshow

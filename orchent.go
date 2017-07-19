@@ -21,7 +21,7 @@ var (
 	hostUrl = app.Flag("url", "the base url of the orchestrator rest interface. Alternative the environment variable 'ORCHENT_URL' can be used: 'export ORCHENT_URL=<the_url>'").Short('u').String()
 
 	lsDep       = app.Command("depls", "list deployments")
-	lsDepFilter = lsDep.Arg("createdBy", "the subject@issuer of user to filter the deployments for, 'me' is shorthand for the current user").String()
+	lsDepFilter = lsDep.Flag("created_by", "the subject@issuer of user to filter the deployments for, 'me' is shorthand for the current user").Short('c').String()
 
 	showDep     = app.Command("depshow", "show a specific deployment")
 	showDepUuid = showDep.Arg("uuid", "the uuid of the deployment to display").Required().String()
