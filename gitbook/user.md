@@ -13,6 +13,12 @@ Once an access token is known, it needs to be exportet in the environment variab
 export ORCHENT_TOKEN=<your access token here>
 ```
 
+One can also export the url of the orchestrator via environment variable 'ORCHENT_URL':
+```
+export ORCHENT_URL=<url to the orchestrator>
+```
+It is also possible to specify the url at the command line, see below.
+
 Now the orchent can perform any operation the access token grants, as long as the access token
 is valid.
 
@@ -46,14 +52,15 @@ containing the trusted root CAs use the 'ORCHENT_CAFILE' environment variable:
 Flags:
       --help     Show context-sensitive help (also try --help-long and --help-man).
       --version  Show application version.
-  -u, --url=URL  the base url of the orchestrator rest interface
+  -u, --url=URL  the base url of the orchestrator rest interface. Alternative the environment
+                 variable 'ORCHENT_URL' can be used: 'export ORCHENT_URL=<the_url>'
 
 Commands:
   help [<command>...]
     Show help.
 
-  depls
-    list all deployments
+  depls [<createdBy>]
+    list deployments
 
   depshow <uuid>
     show a specific deployment
@@ -75,6 +82,11 @@ Commands:
 
   resshow <deployment uuid> <resource uuid>
     show a specific resource of a given deployment
+
+  test
+    test if the given url is pointing to an orchestrator, please use this to ensure
+    there is no typo in the url.
+
 ```
 
 the help commang gives even more detailed information on more advanced commands e.g. on 'depcreate':
@@ -87,7 +99,8 @@ create a new deployment
 Flags:
       --help         Show context-sensitive help (also try --help-long and --help-man).
       --version      Show application version.
-  -u, --url=URL      the base url of the orchestrator rest interface
+  -u, --url=URL  the base url of the orchestrator rest interface. Alternative the environment
+                 variable 'ORCHENT_URL' can be used: 'export ORCHENT_URL=<the_url>'
       --callback=""  the callback url
 
 Args:
@@ -96,10 +109,11 @@ Args:
 ```
 
 ### Selecting The Orchestrator
-All commands, except with the help command above, need the 'url' flag to be set.
-The url flag defines the base url of the orchestrator to connect to.
-The flag can be set at any position of the command, yet we recommend settint it as
-the first parameter:
+All commands, except with the help command above, need the base url of the orchestrator
+to be set. This can be done by setting it in the 'ORCHESTRATOR_URL' environment variable
+(see above) or via the url flag.
+The flag can be set at any position of the command, yet we recommend setting it as
+the first parameter, if not using the environment variable:
 ```
 $ orchent --url=https://my.orchestrator.info/some/path
 ```
@@ -108,7 +122,7 @@ $ orchent --url=https://my.orchestrator.info/some/path
 In this chapter all available commands will be explained.
 With two assumptions:
  - The access token is exported
- - The base url is known and will be added to the command
+ - The base url is exported
 
 so instead of always adding the url flag like
 ```
@@ -119,7 +133,16 @@ only the command part will be shown like:
 $ orchent <some command>
 ```
 
-#### List All Deployments - depls
+#### Testing the Orchent URL - test
+orchent has a simple way to test if the url points to an orchestrator:
+```
+orchent test
+```
+The outpt will let you know if the given url looks fine or not. This should be the first
+test to perform when having issues, as most of the time a simple typo is the cause of all evil.
+
+
+#### List Deployments - depls
 To list all deployments at an orchestrator the 'depls' command is used.
 Invoking is as simple as:
 ```
@@ -127,6 +150,14 @@ $ orchent depls
 ```
 The output is a long list of all pages of deployments.
 
+The output can be filtered to a specific user by adding the subject@issuer:
+```
+$ orchent depls som-uuid-at-iam@https://iam-test.indigo-datacloud.eu/
+```
+There is also a shortcut for the current user - 'me':
+```
+$ orchent depls me
+```
 
 #### Show A Specific Deployment - depshow
 To show only a specific deployment orchent needs the uuid of the deployment.
@@ -183,7 +214,7 @@ $ orchent depcreate <template file name> <json object with parameter>
 
 Example:
 ```
-$ orchent depcreate ../myTemplate.yml '{ "number_cpus": 1, ​"memory_size": "1 GB" }'
+$ orchent depcreate ambertools.yaml '{ "number_cpus": 1, ​"memory_size": "1 GB" }'
 Deployment [12345678-1234-1234-1234-123456789abc]:
   status: CREATE_IN_PROGRESS
   status reason:
@@ -196,6 +227,8 @@ Deployment [12345678-1234-1234-1234-123456789abc]:
     resources [./deployments/12345678-1234-1234-1234-123456789abc/resources]
     template [./deployments/12345678-1234-1234-1234-123456789abc/template]
 ```
+an example template would be the [ambertools template](https://raw.githubusercontent.com/indigo-dc/tosca-templates/master/amber/ambertools.yaml)
+
 #### Update A Given Deployment - depupdate
 Updating a deployment is like creating one with the difference that a uuid of an existing
 deployment needs to be passed:

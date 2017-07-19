@@ -23,29 +23,25 @@ cd orchent/utils
 ## Usage
 orchent helps you as much as possible:
 ```
-$ orchent --help
 usage: orchent [<flags>] <command> [<args> ...]
 
-The orchestrator client. Please store your access token in the 'ORCHENT_TOKEN'
-environment variable: 'export ORCHENT_TOKEN=<your access token>'. If you need to
-specify the file containing the trusted root CAs use the 'ORCHENT_CAFILE'
-environment variable: 'export ORCHENT_CAFILE=<path to file containing trusted
-CAs>'.
+The orchestrator client. Please store your access token in the 'ORCHENT_TOKEN' environment
+variable: 'export ORCHENT_TOKEN=<your access token>'. If you need to specify the file
+containing the trusted root CAs use the 'ORCHENT_CAFILE' environment variable:
+'export ORCHENT_CAFILE=<path to file containing trusted CAs>'.
 
 Flags:
-      --help     Show context-sensitive help (also try --help-long and
-                 --help-man).
+      --help     Show context-sensitive help (also try --help-long and --help-man).
       --version  Show application version.
-  -u, --url=URL  the base url of the orchestrator rest interface. Alternative
-                 the environment variable 'ORCHENT_URL' can be used: 'export
-                 ORCHENT_URL=<the_url>'
+  -u, --url=URL  the base url of the orchestrator rest interface. Alternative the environment
+                 variable 'ORCHENT_URL' can be used: 'export ORCHENT_URL=<the_url>'
 
 Commands:
   help [<command>...]
     Show help.
 
-  depls
-    list all deployments
+  depls [<createdBy>]
+    list deployments
 
   depshow <uuid>
     show a specific deployment
@@ -68,6 +64,11 @@ Commands:
   resshow <deployment uuid> <resource uuid>
     show a specific resource of a given deployment
 
+  test
+    test if the given url is pointing to an orchestrator, please use this to ensure
+    there is no typo in the url.
+
+
 
 ```
 
@@ -79,13 +80,13 @@ export ORCHENT_TOKEN=<your access token here>
 As long as the access token is valid orchent can tell the orchestrator what to do.
 e.g. update a deployment:
 ```
-./orchent --url=http://orchestrator01-indigo.cloud.ba.infn.it:8080/orchestrator depupdate eac4dabb-9613-4026-bac7-6075050308e3 template.txt '{"number_cpus":
-+1, "memory_size": "2 GB"}'
+export ORCHENT_URL=https://orchestrator01-indigo.cloud.ba.infn.it/orchestrator/
+./orchent depupdate eac4dabb-9613-4026-bac7-6075050308e3 template.txt '{"number_cpus": +1, "memory_size": "2 GB"}'
 update of deployment eac4dabb-9613-4026-bac7-6075050308e3 successfully triggered
 ```
 And after that one could e.g. have a look at the deployment:
 ```
-./orchent --url=http://orchestrator01-indigo.cloud.ba.infn.it:8080/orchestrator depshow eac4dabb-9613-4026-bac7-6075050308e3
+./orchent depshow eac4dabb-9613-4026-bac7-6075050308e3
 Deployment [eac4dabb-9613-4026-bac7-6075050308e3]:
   status: UPDATE_IN_PROGRESS
   creation time: 2016-10-12T07:02+0000
