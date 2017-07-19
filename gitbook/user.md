@@ -160,6 +160,14 @@ There is also a shortcut for the current user - 'me':
 $ orchent depls --created_by=me
 ```
 
+It is also possible to filter the deployments by data/time. The flags used are `--before` and
+`--after`, they can be used either alone or together as well as in combination with `--created_by`.
+A date/time is specified as 'YYYYMMDDHHMM'. The correctness of the date or time is not checked.
+```
+$ orchent depls --after=201707090000
+```
+
+
 #### Show A Specific Deployment - depshow
 To show only a specific deployment orchent needs the uuid of the deployment.
 ```

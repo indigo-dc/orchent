@@ -40,7 +40,7 @@ Commands:
   help [<command>...]
     Show help.
 
-  depls [<createdBy>]
+  depls [<flags>]
     list deployments
 
   depshow <uuid>

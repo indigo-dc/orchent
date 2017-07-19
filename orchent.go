@@ -12,6 +12,7 @@ import (
 	"net/url"
 	"os"
 	"strings"
+	"strconv"
 )
 
 const OrchentVersion string = "1.0.4"
@@ -21,7 +22,9 @@ var (
 	hostUrl = app.Flag("url", "the base url of the orchestrator rest interface. Alternative the environment variable 'ORCHENT_URL' can be used: 'export ORCHENT_URL=<the_url>'").Short('u').String()
 
 	lsDep       = app.Command("depls", "list deployments")
-	lsDepFilter = lsDep.Flag("created_by", "the subject@issuer of user to filter the deployments for, 'me' is shorthand for the current user").Short('c').String()
+	lsDepUser = lsDep.Flag("created_by", "the subject@issuer of user to filter the deployments for, 'me' is shorthand for the current user").Short('c').String()
+	lsDepBefore = lsDep.Flag("before", "filter the deployments, they must be created before the given date/time, the format is YYYYMMDDHHMM").Short('b').String()
+	lsDepAfter = lsDep.Flag("after", "filter the deployments, they must be created after the given date/time, the format is YYYYMMDDHHMM").Short('a').String()
 
 	showDep     = app.Command("depshow", "show a specific deployment")
 	showDepUuid = showDep.Arg("uuid", "the uuid of the deployment to display").Required().String()
@@ -103,6 +106,21 @@ type OrchentPage struct {
 	Number        int `json:"number"`
 }
 
+func deployment_time_to_number(time string) int {
+	y := time[0:4]
+	m := time[5:7]
+	d := time[8:10]
+	h := time[11:13]
+	min := time[14:16]
+	yi, _ := strconv.Atoi(y)
+	mi, _ := strconv.Atoi(m)
+	di, _ := strconv.Atoi(d)
+	hi, _ := strconv.Atoi(h)
+	mini, _ := strconv.Atoi(min)
+	value := mini + 100 * hi + 10000 * di + 1000000 * mi + 100000000 * yi
+	return value
+}
+
 type OrchentDeployment struct {
 	Uuid              string                 `json:"uuid"`
 	CreationTime      string                 `json:"creationTime"`
@@ -130,6 +148,23 @@ type OrchentDeploymentList struct {
 	Deployments []OrchentDeployment `json:"content"`
 	Links       []OrchentLink       `json:"links"`
 	Page        OrchentPage         `json:"page"`
+}
+
+func filter_deployments_by_time(depList OrchentDeploymentList, before int, after int) OrchentDeploymentList {
+	newDeps := make([]OrchentDeployment, 0)
+	for _, dep := range depList.Deployments {
+		created := deployment_time_to_number(dep.CreationTime)
+		isBefore := (created <= before) || (before < 0)
+		isAfter := (created >= after) || (after < 0)
+		if isBefore && isAfter {
+			tempDeps := make([]OrchentDeployment, len(newDeps)+1)
+			copy(tempDeps, newDeps)
+			newDeps = tempDeps
+			newDeps[len(newDeps)-1] = dep
+		}
+	}
+	depList.Deployments = newDeps
+	return depList
 }
 
 type OrchentResourceList struct {
@@ -271,17 +306,43 @@ func read_ca_file(caFileName string) []byte {
 	return data[:count]
 }
 
-func deployments_list(base *sling.Sling, filter string) {
+func time_string_to_int(time string) int {
+	if len(time) == 0 {
+		return -1
+	}
+	if len(time) != 12 {
+		fmt.Println("the before/after parameter must be 12 digits long: YYYYMMDDHHMM")
+		return 0
+	}
+	value, err := strconv.Atoi(time)
+	if err != nil {
+		fmt.Println("could not convert before/after to an integer")
+		return 0
+	}
+	if value < 100000000000 {
+		fmt.Println("the before/after value is too low")
+		return 0
+	}
+	return value
+}
+
+
+func deployments_list(base *sling.Sling, user string, before string, after string) {
 	append := "./deployments"
-	if filter != "" {
-		append += ("?createdBy=" + filter)
+	if user != "" {
+		append += ("?createdBy=" + user)
 	}
 	base = base.Get(append)
 	fmt.Println("retrieving deployment list:")
-	receive_and_print_deploymentlist(base)
+	before_int := time_string_to_int(before)
+	after_int := time_string_to_int(after)
+	if before_int == 0 || after_int == 0 {
+		return
+	}
+	receive_and_print_deploymentlist(base, before_int, after_int)
 }
 
-func receive_and_print_deploymentlist(complete *sling.Sling) {
+func receive_and_print_deploymentlist(complete *sling.Sling, before int, after int) {
 	deploymentList := new(OrchentDeploymentList)
 	orchentError := new(OrchentError)
 	_, err := complete.Receive(deploymentList, orchentError)
@@ -296,10 +357,13 @@ func receive_and_print_deploymentlist(complete *sling.Sling) {
 		curPage := get_link("self", links)
 		nextPage := get_link("next", links)
 		lastPage := get_link("last", links)
-		fmt.Printf("%s\n", deploymentList)
+		filteredDeploymentList := filter_deployments_by_time(*deploymentList, before, after)
+		if len(filteredDeploymentList.Deployments) > 0 {
+			fmt.Printf("%s\n", filteredDeploymentList)
+		}
 		if curPage != nil && nextPage != nil && lastPage != nil &&
 			curPage.HRef != lastPage.HRef {
-			receive_and_print_deploymentlist(base_connection(nextPage.HRef))
+			receive_and_print_deploymentlist(base_connection(nextPage.HRef), before, after)
 		}
 
 	}
@@ -519,7 +583,7 @@ func main() {
 	case lsDep.FullCommand():
 		baseUrl := get_base_url()
 		base := base_connection(baseUrl)
-		deployments_list(base, *lsDepFilter)
+		deployments_list(base, *lsDepUser, *lsDepBefore, *lsDepAfter)
 
 	case showDep.FullCommand():
 		baseUrl := get_base_url()
