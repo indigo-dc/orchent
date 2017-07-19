@@ -5,7 +5,7 @@ information with its 'help' command, just call `orchent --help`.
 ## Setting The Access Token
 The orchestrator needs a way to authorize orchent, this is done by a so called access token.
 The access token is retrieved beforhand at either [IAM](https://github.com/indigo-iam/iam) or
-[TTS](https://github.com/indigo-dc/tts).
+[WaTTS](https://github.com/indigo-dc/tts).
 
 Once an access token is known, it needs to be exportet in the environment variable
 `ORCHENT_TOKEN`:
