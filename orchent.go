@@ -20,7 +20,8 @@ var (
 	app     = kingpin.New("orchent", "The orchestrator client. Please store your access token in the 'ORCHENT_TOKEN' environment variable: 'export ORCHENT_TOKEN=<your access token>'. If you need to specify the file containing the trusted root CAs use the 'ORCHENT_CAFILE' environment variable: 'export ORCHENT_CAFILE=<path to file containing trusted CAs>'.").Version(OrchentVersion)
 	hostUrl = app.Flag("url", "the base url of the orchestrator rest interface. Alternative the environment variable 'ORCHENT_URL' can be used: 'export ORCHENT_URL=<the_url>'").Short('u').String()
 
-	lsDep = app.Command("depls", "list all deployments")
+	lsDep       = app.Command("depls", "list deployments")
+	lsDepFilter = lsDep.Arg("createdBy", "the subject@issuer of user to filter the deployments for, 'me' is shorthand for the current user").String()
 
 	showDep     = app.Command("depshow", "show a specific deployment")
 	showDepUuid = showDep.Arg("uuid", "the uuid of the deployment to display").Required().String()
@@ -48,6 +49,8 @@ var (
 	showRes        = app.Command("resshow", "show a specific resource of a given deployment")
 	showResDepUuid = showRes.Arg("deployment uuid", "the uuid of the deployment").Required().String()
 	showResResUuid = showRes.Arg("resource uuid", "the uuid of the resource to show").Required().String()
+
+	testUrl = app.Command("test", "test if the given url is pointing to an orchestrator, please use this to ensure there is no typo in the url.")
 )
 
 type OrchentError struct {
@@ -70,6 +73,13 @@ func (e OrchentError) Error() string {
 
 func is_error(e *OrchentError) bool {
 	return e.Error() != ""
+}
+
+type OrchentInfo struct {
+	Version   string `json:"projectVersion"`
+	Hostname  string `json:"serverHostname"`
+	Revision  string `json:"projectRevision"`
+	Timestamp string `json:"projectTimestamp"`
 }
 
 type OrchentLink struct {
@@ -261,8 +271,12 @@ func read_ca_file(caFileName string) []byte {
 	return data[:count]
 }
 
-func deployments_list(base *sling.Sling) {
-	base = base.Get("./deployments")
+func deployments_list(base *sling.Sling, filter string) {
+	append := "./deployments"
+	if filter != "" {
+		append += ("?createdBy=" + filter)
+	}
+	base = base.Get(append)
 	fmt.Println("retrieving deployment list:")
 	receive_and_print_deploymentlist(base)
 }
@@ -445,6 +459,22 @@ func resource_show(depUuid string, resUuid string, base *sling.Sling) {
 	}
 }
 
+func test_url(base *sling.Sling) {
+	info := new(OrchentInfo)
+	orchentError := new(OrchentError)
+	base = base.Get("./info")
+	_, err := base.Receive(info, orchentError)
+	if err != nil {
+		fmt.Println("error checking orchent url, it seems like the url is not correct")
+		return
+	}
+	if is_error(orchentError) {
+		fmt.Println("error checking orchent url, it seems like the url is not correct")
+	} else {
+		fmt.Println("looks like the orchent url is valid")
+	}
+}
+
 func base_connection(urlBase string) *sling.Sling {
 	client := client()
 	tokenValue, tokenSet := os.LookupEnv("ORCHENT_TOKEN")
@@ -489,7 +519,7 @@ func main() {
 	case lsDep.FullCommand():
 		baseUrl := get_base_url()
 		base := base_connection(baseUrl)
-		deployments_list(base)
+		deployments_list(base, *lsDepFilter)
 
 	case showDep.FullCommand():
 		baseUrl := get_base_url()
@@ -525,5 +555,10 @@ func main() {
 		baseUrl := get_base_url()
 		base := base_connection(baseUrl)
 		resource_show(*showResDepUuid, *showResResUuid, base)
+
+	case testUrl.FullCommand():
+		baseUrl := get_base_url()
+		base := base_connection(baseUrl)
+		test_url(base)
 	}
 }
