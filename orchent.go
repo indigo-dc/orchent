@@ -542,11 +542,15 @@ func test_url(base *sling.Sling) {
 func base_connection(urlBase string) *sling.Sling {
 	client := client()
 	tokenValue, tokenSet := os.LookupEnv("ORCHENT_TOKEN")
+	genTokenValue, genTokenSet := os.LookupEnv("OIDC_AT")
 	base := sling.New().Client(client).Base(urlBase)
 	base = base.Set("User-Agent", "Orchent")
 	base = base.Set("Accept", "application/json")
 	if tokenSet {
 		token := "Bearer " + tokenValue
+		return base.Set("Authorization", token)
+	} else if genTokenSet {
+		token := "Bearer " + genTokenValue
 		return base.Set("Authorization", token)
 	} else {
 		fmt.Println(" ")
