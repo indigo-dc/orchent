@@ -11,8 +11,8 @@ import (
 	"net/http"
 	"net/url"
 	"os"
-	"strings"
 	"strconv"
+	"strings"
 )
 
 const OrchentVersion string = "1.0.4"
@@ -22,9 +22,9 @@ var (
 	hostUrl = app.Flag("url", "the base url of the orchestrator rest interface. Alternative the environment variable 'ORCHENT_URL' can be used: 'export ORCHENT_URL=<the_url>'").Short('u').String()
 
 	lsDep       = app.Command("depls", "list deployments")
-	lsDepUser = lsDep.Flag("created_by", "the subject@issuer of user to filter the deployments for, 'me' is shorthand for the current user").Short('c').String()
+	lsDepUser   = lsDep.Flag("created_by", "the subject@issuer of user to filter the deployments for, 'me' is shorthand for the current user").Short('c').String()
 	lsDepBefore = lsDep.Flag("before", "filter the deployments, they must be created before the given date/time, the format is YYYYMMDDHHMM").Short('b').String()
-	lsDepAfter = lsDep.Flag("after", "filter the deployments, they must be created after the given date/time, the format is YYYYMMDDHHMM").Short('a').String()
+	lsDepAfter  = lsDep.Flag("after", "filter the deployments, they must be created after the given date/time, the format is YYYYMMDDHHMM").Short('a').String()
 
 	showDep     = app.Command("depshow", "show a specific deployment")
 	showDepUuid = showDep.Arg("uuid", "the uuid of the deployment to display").Required().String()
@@ -117,7 +117,7 @@ func deployment_time_to_number(time string) int {
 	di, _ := strconv.Atoi(d)
 	hi, _ := strconv.Atoi(h)
 	mini, _ := strconv.Atoi(min)
-	value := mini + 100 * hi + 10000 * di + 1000000 * mi + 100000000 * yi
+	value := mini + 100*hi + 10000*di + 1000000*mi + 100000000*yi
 	return value
 }
 
@@ -325,7 +325,6 @@ func time_string_to_int(time string) int {
 	}
 	return value
 }
-
 
 func deployments_list(base *sling.Sling, user string, before string, after string) {
 	append := "./deployments"
