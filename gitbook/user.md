@@ -34,6 +34,28 @@ export ORCHENT_CAFILE=<path to the file containing trusted CAs>
 ```
 
 
+## Configure Orchent
+Orchent supports the ini configuration file format. The configuration file must be located
+at `~/.config/orchent/orchent.conf`.
+
+### Alias
+Aliases are configured within the 'alias' section. Each line represents an alias and
+a uuid to use instead.
+
+An example configuration is:
+```
+[alias]
+one = 78f1a558-fa2d-4415-8bab-058a26d43a79
+two = a741b980-3057-48ce-b35a-93af3844953f
+```
+if such a file exists the alias can be used anywhere instead of the uuid.
+The following two commands are performing the same request at the
+orchestrator (given the config above):
+```
+orchent depshow 78f1a558-fa2d-4415-8bab-058a26d43a79
+orchent depshow one
+```
+
 ## Using Orchent
 Please make sure you have exported your access token, see above.
 
