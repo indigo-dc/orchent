@@ -7,10 +7,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/dghubble/sling"
+	"github.com/zpatrick/go-config"
 	"gopkg.in/alecthomas/kingpin.v2"
 	"net/http"
 	"net/url"
 	"os"
+	"os/user"
 	"strconv"
 	"strings"
 )
@@ -538,6 +540,43 @@ func test_url(base *sling.Sling) {
 	}
 }
 
+func settings() map[string]string {
+	emptyset := make(map[string]string)
+	user, err := user.Current()
+	if err != nil {
+		return emptyset
+	}
+	dir := user.HomeDir + "/.config/orchent/orchent.conf"
+	confFile := config.NewINIFile(dir)
+	c := config.NewConfig([]config.Provider{confFile})
+	settings, err := c.Settings()
+	if err != nil {
+		return emptyset
+	}
+
+	return settings
+}
+
+func aliases(settings map[string]string) map[string]string {
+	aliases := make(map[string]string)
+	for key, val := range settings {
+		if key[0:6] == "alias." {
+			alias := key[6:len(key)]
+			aliases[alias] = val
+			// aliases[val] = alias
+		}
+	}
+	return aliases
+}
+
+func try_alias_uuid(alias string, aliases map[string]string) string {
+	value, found := aliases[alias]
+	if found {
+		return value
+	}
+	return alias
+}
+
 func base_connection(urlBase string) *sling.Sling {
 	client := client()
 	tokenValue, tokenSet := os.LookupEnv("ORCHENT_TOKEN")
@@ -582,6 +621,9 @@ func get_base_url() string {
 }
 
 func main() {
+	settings := settings()
+	aliases := aliases(settings)
+
 	switch kingpin.MustParse(app.Parse(os.Args[1:])) {
 	case lsDep.FullCommand():
 		baseUrl := get_base_url()
@@ -591,7 +633,8 @@ func main() {
 	case showDep.FullCommand():
 		baseUrl := get_base_url()
 		base := base_connection(baseUrl)
-		deployment_show(*showDepUuid, base)
+		uuid := try_alias_uuid(*showDepUuid, aliases)
+		deployment_show(uuid, base)
 
 	case createDep.FullCommand():
 		baseUrl := get_base_url()
@@ -601,27 +644,33 @@ func main() {
 	case updateDep.FullCommand():
 		baseUrl := get_base_url()
 		base := base_connection(baseUrl)
-		deployment_create_update(*updateDepTemplate, *updateDepParameter, *updateDepCallback, updateDepUuid, base)
+		uuid := try_alias_uuid(*updateDepUuid, aliases)
+		deployment_create_update(*updateDepTemplate, *updateDepParameter, *updateDepCallback, &uuid, base)
 
 	case depTemplate.FullCommand():
 		baseUrl := get_base_url()
 		base := base_connection(baseUrl)
-		deployment_get_template(*templateDepUuid, base)
+		uuid := try_alias_uuid(*templateDepUuid, aliases)
+		deployment_get_template(uuid, base)
 
 	case delDep.FullCommand():
 		baseUrl := get_base_url()
 		base := base_connection(baseUrl)
-		deployment_delete(*delDepUuid, base)
+		uuid := try_alias_uuid(*delDepUuid, aliases)
+		deployment_delete(uuid, base)
 
 	case lsRes.FullCommand():
 		baseUrl := get_base_url()
 		base := base_connection(baseUrl)
-		resources_list(*lsResDepUuid, base)
+		uuid := try_alias_uuid(*lsResDepUuid, aliases)
+		resources_list(uuid, base)
 
 	case showRes.FullCommand():
 		baseUrl := get_base_url()
 		base := base_connection(baseUrl)
-		resource_show(*showResDepUuid, *showResResUuid, base)
+		uuid := try_alias_uuid(*showResDepUuid, aliases)
+		resUuid := try_alias_uuid(*showResResUuid, aliases)
+		resource_show(uuid, resUuid, base)
 
 	case testUrl.FullCommand():
 		baseUrl := get_base_url()
