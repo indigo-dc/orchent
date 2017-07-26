@@ -21,12 +21,15 @@ echo " "
 echo "running the build with '$VERSION', please include in issue reports"
 echo " "
 export "GOPATH=${GOPATH}"
-echo "fetiching:"
+echo "fetching:"
 echo -n "  kingpin ... "
 go get gopkg.in/alecthomas/kingpin.v2
 echo "done"
 echo -n "  sling ... "
 go get github.com/dghubble/sling
+echo "done"
+echo -n "  go-config ... "
+go get github.com/zpatrick/go-config
 echo "done"
 echo -n "building orchent ... "
 go build -o orchent ${GOPATH}/orchent.go
