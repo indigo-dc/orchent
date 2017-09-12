@@ -578,16 +578,16 @@ func try_alias_uuid(alias string, aliases map[string]string) string {
 	return alias
 }
 
-func get_issuer() (issuerSet bool, agentIssuer string) {
-	agentIssuer, agentSet := os.LookupEnv("ORCHENT_AGENT_ISSUER")
+func get_account() (issuerSet bool, agentIssuer string) {
+	agentAccount, accountSet := os.LookupEnv("ORCHENT_AGENT_ACCOUNT")
 	// issuerValue, issuerSet = os.LookupEnv("ORCHENT_ISSUER")
 	// if !agentSet && issuerSet {
 	// 	agentIssuer = issuerValue
 	// }
-	return agentSet, agentIssuer
+	return accountSet, agentAccount
 }
 
-func try_agent_token(provider string) (tokenSet bool, tokenValue string) {
+func try_agent_token(account string) (tokenSet bool, tokenValue string) {
 	socketValue, socketSet := os.LookupEnv("OIDC_SOCK")
 	tokenSet = false
 	tokenValue = ""
@@ -602,7 +602,7 @@ func try_agent_token(provider string) (tokenSet bool, tokenValue string) {
 	}
 	defer c.Close()
 
-	ipcReq := fmt.Sprintf(`{"request":"access_token","provider":"%s","min_valid_period":120}`, provider)
+	ipcReq := fmt.Sprintf(`{"request":"access_token","account":"%s","min_valid_period":120}`, account)
 	_, err = c.Write([]byte(ipcReq))
 	if err != nil {
 		fmt.Printf("could not write to socket %s: %s\n", socketValue, err.Error())
@@ -629,17 +629,17 @@ func try_agent_token(provider string) (tokenSet bool, tokenValue string) {
 	return tokenSet, tokenValue
 }
 
-func try_token(issuerSet bool, issuer string) (tokenSet bool, token string) {
+func try_token(accountSet bool, account string) (tokenSet bool, token string) {
 	tokenValue, tokenSet := os.LookupEnv("ORCHENT_TOKEN")
-	if !tokenSet && issuerSet {
-		return try_agent_token(issuer)
+	if !tokenSet && accountSet {
+		return try_agent_token(account)
 	}
 	return tokenSet, tokenValue
 }
 func base_connection(urlBase string) *sling.Sling {
 	client := client()
-	issuerSet, issuer := get_issuer()
-	tokenSet, tokenValue := try_token(issuerSet, issuer)
+	accountSet, account := get_account()
+	tokenSet, tokenValue := try_token(accountSet, account)
 	base := sling.New().Client(client).Base(urlBase)
 	base = base.Set("User-Agent", "Orchent")
 	base = base.Set("Accept", "application/json")
