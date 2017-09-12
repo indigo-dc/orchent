@@ -9,6 +9,7 @@ import (
 	"github.com/dghubble/sling"
 	"github.com/zpatrick/go-config"
 	"gopkg.in/alecthomas/kingpin.v2"
+	"net"
 	"net/http"
 	"net/url"
 	"os"
@@ -17,7 +18,7 @@ import (
 	"strings"
 )
 
-const OrchentVersion string = "1.1.0"
+const OrchentVersion string = "1.2.0"
 
 var (
 	app     = kingpin.New("orchent", "The orchestrator client. Please store your access token in the 'ORCHENT_TOKEN' environment variable: 'export ORCHENT_TOKEN=<your access token>'. If you need to specify the file containing the trusted root CAs use the 'ORCHENT_CAFILE' environment variable: 'export ORCHENT_CAFILE=<path to file containing trusted CAs>'.").Version(OrchentVersion)
@@ -577,18 +578,73 @@ func try_alias_uuid(alias string, aliases map[string]string) string {
 	return alias
 }
 
+func get_issuer() (issuerSet bool, agentIssuer string) {
+	agentIssuer, agentSet := os.LookupEnv("ORCHENT_AGENT_ISSUER")
+	// issuerValue, issuerSet = os.LookupEnv("ORCHENT_ISSUER")
+	// if !agentSet && issuerSet {
+	// 	agentIssuer = issuerValue
+	// }
+	return agentSet, agentIssuer
+}
+
+func try_agent_token(provider string) (tokenSet bool, tokenValue string) {
+	socketValue, socketSet := os.LookupEnv("OIDC_SOCK")
+	tokenSet = false
+	tokenValue = ""
+	if !socketSet {
+		return tokenSet, tokenValue
+	}
+
+	c, err := net.Dial("unixpacket", socketValue)
+	if err != nil {
+		fmt.Printf("could not connect to socket %s: %s\n", socketValue, err.Error())
+		return tokenSet, tokenValue
+	}
+	defer c.Close()
+
+	ipcReq := fmt.Sprintf(`{"request":"access_token","provider":"%s","min_valid_period":120}`, provider)
+	_, err = c.Write([]byte(ipcReq))
+	if err != nil {
+		fmt.Printf("could not write to socket %s: %s\n", socketValue, err.Error())
+		return tokenSet, tokenValue
+	}
+	var response = [4096]byte{}
+	length, err := c.Read(response[0:4096])
+	if err != nil {
+		fmt.Printf("could not read from socket %s: %s\n", socketValue, err.Error())
+		return tokenSet, tokenValue
+	}
+
+	oidcToken := make(map[string]string)
+	jsonErr := json.Unmarshal(response[0:(length -1)], &oidcToken)
+	if jsonErr != nil {
+		fmt.Printf("error parsing the oidc response: %s\n", jsonErr)
+		return tokenSet, tokenValue
+	}
+	tokenValue, tokenSet =  oidcToken["access_token"]
+	if tokenSet {
+		fmt.Println("received token from oidc-agent")
+		fmt.Println(tokenValue)
+	}
+	return tokenSet, tokenValue
+}
+
+func try_token(issuerSet bool, issuer string) (tokenSet bool, token string) {
+	tokenValue, tokenSet := os.LookupEnv("ORCHENT_TOKEN")
+	if !tokenSet && issuerSet {
+		return try_agent_token(issuer)
+	}
+	return tokenSet, tokenValue
+}
 func base_connection(urlBase string) *sling.Sling {
 	client := client()
-	tokenValue, tokenSet := os.LookupEnv("ORCHENT_TOKEN")
-	genTokenValue, genTokenSet := os.LookupEnv("OIDC_AT")
+	issuerSet, issuer := get_issuer()
+	tokenSet, tokenValue := try_token(issuerSet, issuer)
 	base := sling.New().Client(client).Base(urlBase)
 	base = base.Set("User-Agent", "Orchent")
 	base = base.Set("Accept", "application/json")
 	if tokenSet {
 		token := "Bearer " + tokenValue
-		return base.Set("Authorization", token)
-	} else if genTokenSet {
-		token := "Bearer " + genTokenValue
 		return base.Set("Authorization", token)
 	} else {
 		fmt.Println(" ")
