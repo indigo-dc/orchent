@@ -587,6 +587,10 @@ func get_account() (issuerSet bool, agentIssuer string) {
 	return accountSet, agentAccount
 }
 
+func user_info(format string, a ...interface{}) {
+	fmt.Printf(format, a)
+}
+
 func try_agent_token(account string) (tokenSet bool, tokenValue string) {
 	socketValue, socketSet := os.LookupEnv("OIDC_SOCK")
 	tokenSet = false
@@ -597,7 +601,7 @@ func try_agent_token(account string) (tokenSet bool, tokenValue string) {
 
 	c, err := net.Dial("unixpacket", socketValue)
 	if err != nil {
-		fmt.Printf("could not connect to socket %s: %s\n", socketValue, err.Error())
+		user_info("could not connect to socket %s: %s\n", socketValue, err.Error())
 		return tokenSet, tokenValue
 	}
 	defer c.Close()
@@ -605,13 +609,13 @@ func try_agent_token(account string) (tokenSet bool, tokenValue string) {
 	ipcReq := fmt.Sprintf(`{"request":"access_token","account":"%s","min_valid_period":120}`, account)
 	_, err = c.Write([]byte(ipcReq))
 	if err != nil {
-		fmt.Printf("could not write to socket %s: %s\n", socketValue, err.Error())
+		user_info("could not write to socket %s: %s\n", socketValue, err.Error())
 		return tokenSet, tokenValue
 	}
 	var response = [4096]byte{}
 	length, err := c.Read(response[0:4095])
 	if err != nil {
-		fmt.Printf("could not read from socket %s: %s\n", socketValue, err.Error())
+		user_info("could not read from socket %s: %s\n", socketValue, err.Error())
 		return tokenSet, tokenValue
 	}
 
@@ -619,12 +623,12 @@ func try_agent_token(account string) (tokenSet bool, tokenValue string) {
 	oidcToken := make(map[string]string)
 	jsonErr := json.Unmarshal(response[0:length], &oidcToken)
 	if jsonErr != nil {
-		fmt.Printf("error parsing the oidc response: %s\n", jsonErr)
+		user_info("error parsing the oidc response: %s\n", jsonErr)
 		return tokenSet, tokenValue
 	}
 	tokenValue, tokenSet = oidcToken["access_token"]
 	if tokenSet {
-		fmt.Println("received token from oidc-agent")
+		user_info("received token from oidc-agent\n")
 	}
 	return tokenSet, tokenValue
 }
@@ -636,6 +640,7 @@ func try_token(accountSet bool, account string) (tokenSet bool, token string) {
 	}
 	return tokenSet, tokenValue
 }
+
 func base_connection(urlBase string) *sling.Sling {
 	client := client()
 	accountSet, account := get_account()
