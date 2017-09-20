@@ -9,6 +9,7 @@ import (
 	"github.com/dghubble/sling"
 	"github.com/zpatrick/go-config"
 	"gopkg.in/alecthomas/kingpin.v2"
+	"net"
 	"net/http"
 	"net/url"
 	"os"
@@ -17,10 +18,10 @@ import (
 	"strings"
 )
 
-const OrchentVersion string = "1.1.0"
+const OrchentVersion string = "1.2.0"
 
 var (
-	app     = kingpin.New("orchent", "The orchestrator client. Please store your access token in the 'ORCHENT_TOKEN' environment variable: 'export ORCHENT_TOKEN=<your access token>'. If you need to specify the file containing the trusted root CAs use the 'ORCHENT_CAFILE' environment variable: 'export ORCHENT_CAFILE=<path to file containing trusted CAs>'.").Version(OrchentVersion)
+	app     = kingpin.New("orchent", "The orchestrator client. \n \nPlease either store your access token in 'ORCHENT_TOKEN' or set the account to use with oidc-agent in the 'ORCHENT_AGENT_ACCOUNT' and the socket of the oidc-agent in the 'OIDC_SOCK' environment variable: \n export ORCHENT_TOKEN=<your access token> \n         OR \n export OIDC_SOCK=<path to the oidc-agent socket> (usually this is already exported) \n export ORCHENT_AGENT_ACCOUNT=,account to use> \nIf you need to specify the file containing the trusted root CAs use the 'ORCHENT_CAFILE' environment variable: \n export ORCHENT_CAFILE=<path to file containing trusted CAs>\n \n").Version(OrchentVersion)
 	hostUrl = app.Flag("url", "the base url of the orchestrator rest interface. Alternative the environment variable 'ORCHENT_URL' can be used: 'export ORCHENT_URL=<the_url>'").Short('u').String()
 
 	lsDep       = app.Command("depls", "list deployments")
@@ -577,18 +578,78 @@ func try_alias_uuid(alias string, aliases map[string]string) string {
 	return alias
 }
 
+func get_account() (issuerSet bool, agentIssuer string) {
+	agentAccount, accountSet := os.LookupEnv("ORCHENT_AGENT_ACCOUNT")
+	// issuerValue, issuerSet = os.LookupEnv("ORCHENT_ISSUER")
+	// if !agentSet && issuerSet {
+	// 	agentIssuer = issuerValue
+	// }
+	return accountSet, agentAccount
+}
+
+func user_info(format string, a ...interface{}) {
+	fmt.Printf(format, a)
+}
+
+func try_agent_token(account string) (tokenSet bool, tokenValue string) {
+	socketValue, socketSet := os.LookupEnv("OIDC_SOCK")
+	tokenSet = false
+	tokenValue = ""
+	if !socketSet {
+		return tokenSet, tokenValue
+	}
+
+	c, err := net.Dial("unixpacket", socketValue)
+	if err != nil {
+		user_info("could not connect to socket %s: %s\n", socketValue, err.Error())
+		return tokenSet, tokenValue
+	}
+	defer c.Close()
+
+	ipcReq := fmt.Sprintf(`{"request":"access_token","account":"%s","min_valid_period":120}`, account)
+	_, err = c.Write([]byte(ipcReq))
+	if err != nil {
+		user_info("could not write to socket %s: %s\n", socketValue, err.Error())
+		return tokenSet, tokenValue
+	}
+	var response = [4096]byte{}
+	length, err := c.Read(response[0:4095])
+	if err != nil {
+		user_info("could not read from socket %s: %s\n", socketValue, err.Error())
+		return tokenSet, tokenValue
+	}
+
+	response[length] = 0
+	oidcToken := make(map[string]string)
+	jsonErr := json.Unmarshal(response[0:length], &oidcToken)
+	if jsonErr != nil {
+		user_info("error parsing the oidc response: %s\n", jsonErr)
+		return tokenSet, tokenValue
+	}
+	tokenValue, tokenSet = oidcToken["access_token"]
+	if tokenSet {
+		user_info("received token from oidc-agent\n")
+	}
+	return tokenSet, tokenValue
+}
+
+func try_token(accountSet bool, account string) (tokenSet bool, token string) {
+	tokenValue, tokenSet := os.LookupEnv("ORCHENT_TOKEN")
+	if !tokenSet && accountSet {
+		return try_agent_token(account)
+	}
+	return tokenSet, tokenValue
+}
+
 func base_connection(urlBase string) *sling.Sling {
 	client := client()
-	tokenValue, tokenSet := os.LookupEnv("ORCHENT_TOKEN")
-	genTokenValue, genTokenSet := os.LookupEnv("OIDC_AT")
+	accountSet, account := get_account()
+	tokenSet, tokenValue := try_token(accountSet, account)
 	base := sling.New().Client(client).Base(urlBase)
 	base = base.Set("User-Agent", "Orchent")
 	base = base.Set("Accept", "application/json")
 	if tokenSet {
 		token := "Bearer " + tokenValue
-		return base.Set("Authorization", token)
-	} else if genTokenSet {
-		token := "Bearer " + genTokenValue
 		return base.Set("Authorization", token)
 	} else {
 		fmt.Println(" ")

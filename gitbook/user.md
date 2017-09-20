@@ -3,11 +3,21 @@ Using orchent is made as easy as possible. In case you are lost orchent provides
 information with its 'help' command, just call `orchent --help`.
 
 ## Setting The Access Token
-The orchestrator needs a way to authorize orchent, this is done by a so called access token.
-The access token is retrieved beforhand at either [IAM](https://github.com/indigo-iam/iam) or
-[WaTTS](https://github.com/indigo-dc/tts).
+Orchent uses so called access token to authorize itself against the orchestrator.
 
-Once an access token is known, it needs to be exportet in the environment variable
+In The newest release orchent supports the usage of the [oidc-agent](https://github.com/indigo-dc/oidc-agent). By using the oidc-agent the need to copy and paste access tokens is history.
+Two things need to be done to use the oidc-agent with orcht. The first thing is to export the
+name of the oidc-agent account to use in the environmental variable 'ORCHENT_AGENT_ACCOUNT'.
+The account must be loaded into the agent before usage. The second thing is to ensure that
+the path to the socket of the oidc-agent is set within the variable 'OIDC_SOCK':
+
+```
+export ORCHENT_AGENT_ACCOUNT=<account name>
+export OIDC_SOCK=<path to socket of oidc-agent>
+```
+
+One can still set the access token directly in the environmental variable 'ORCHENT_TOKEN',
+this overrides the previous settings.
 `ORCHENT_TOKEN`:
 ```
 export ORCHENT_TOKEN=<your access token here>
@@ -60,16 +70,29 @@ orchent depshow one
 Please make sure you have exported your access token, see above.
 
 ### Getting help
-orchent provides a lot of help, the main help is shown by running `orchent help`.
+orchent provides a lot of help, the main help is shown by running `orchent --help`.
 The output is:
 ```
-$ orchent help
-usage: orchent --url=URL [<flags>] <command> [<args> ...]
+$ orchent --help
+usage: orchent [<flags>] <command> [<args> ...]
 
-The orchestrator client. Please store your access token in the 'ORCHENT_TOKEN' environment
-variable: 'export ORCHENT_TOKEN=<your access token>'. If you need to specify the file
-containing the trusted root CAs use the 'ORCHENT_CAFILE' environment variable:
-'export ORCHENT_CAFILE=<path to file containing trusted CAs>'.
+The orchestrator client.
+
+
+Please either store your access token in 'ORCHENT_TOKEN' or set the account to use with oidc-agent
+in the 'ORCHENT_AGENT_ACCOUNT' and the socket of the oidc-agent in the 'OIDC_SOCK' environment
+variable:
+
+  export ORCHENT_TOKEN=<your access token>
+          OR
+  export OIDC_SOCK=<path to the oidc-agent socket> (usually this is already exported)
+  export ORCHENT_AGENT_ACCOUNT=,account to use>
+
+If you need to specify the file containing the trusted root CAs use the 'ORCHENT_CAFILE' environment
+variable:
+
+  export ORCHENT_CAFILE=<path to file containing trusted CAs>
+
 
 Flags:
       --help     Show context-sensitive help (also try --help-long and --help-man).
@@ -106,8 +129,8 @@ Commands:
     show a specific resource of a given deployment
 
   test
-    test if the given url is pointing to an orchestrator, please use this to ensure
-    there is no typo in the url.
+    test if the given url is pointing to an orchestrator, please use this to ensure there is no
+    typo in the url.
 
 ```
 
