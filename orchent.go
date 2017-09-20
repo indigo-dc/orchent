@@ -609,22 +609,22 @@ func try_agent_token(account string) (tokenSet bool, tokenValue string) {
 		return tokenSet, tokenValue
 	}
 	var response = [4096]byte{}
-	length, err := c.Read(response[0:4096])
+	length, err := c.Read(response[0:4095])
 	if err != nil {
 		fmt.Printf("could not read from socket %s: %s\n", socketValue, err.Error())
 		return tokenSet, tokenValue
 	}
 
+	response[length] = 0
 	oidcToken := make(map[string]string)
-	jsonErr := json.Unmarshal(response[0:(length -1)], &oidcToken)
+	jsonErr := json.Unmarshal(response[0:length], &oidcToken)
 	if jsonErr != nil {
 		fmt.Printf("error parsing the oidc response: %s\n", jsonErr)
 		return tokenSet, tokenValue
 	}
-	tokenValue, tokenSet =  oidcToken["access_token"]
+	tokenValue, tokenSet = oidcToken["access_token"]
 	if tokenSet {
 		fmt.Println("received token from oidc-agent")
-		fmt.Println(tokenValue)
 	}
 	return tokenSet, tokenValue
 }
