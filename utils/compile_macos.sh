@@ -27,6 +27,9 @@ echo "done"
 echo -n "  sling ... "
 go get github.com/dghubble/sling
 echo "done"
+echo -n "  go-config ... "
+go get github.com/zpatrick/go-config
+echo "done"
 echo -n "building orchent ... "
 go build -o orchent ${GOPATH}/orchent.go
 echo "done"
