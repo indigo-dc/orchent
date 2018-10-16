@@ -142,11 +142,13 @@ usage: orchent depcreate [<flags>] <template> <parameter>
 create a new deployment
 
 Flags:
-      --help         Show context-sensitive help (also try --help-long and --help-man).
-      --version      Show application version.
-  -u, --url=URL  the base url of the orchestrator rest interface. Alternative the environment
-                 variable 'ORCHENT_URL' can be used: 'export ORCHENT_URL=<the_url>'
-      --callback=""  the callback url
+      --help                  Show context-sensitive help (also try --help-long and --help-man).
+      --version               Show application version.
+  -u, --url=URL               the base url of the orchestrator rest interface. Alternative the environment variable 'ORCHENT_URL' can be used: 'export ORCHENT_URL=<the_url>'
+      --callback=""           the callback url
+      --maxProvidersRetry=MAXPROVIDERSRETRY
+                              Maximum number of cloud providers to be used in case of failure (Default: UNBOUNDED).
+      --keepLastAttempt=true  In case of failure, keep the resources allocated in the last try (Default: true).
 
 Args:
   <template>   the tosca template file
