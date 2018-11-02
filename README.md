@@ -103,7 +103,7 @@ For more information and more examples please see the [documentation](https://in
 
 ## using Docker
 If your system is not supported you can still use orchent through a lightweight Docker container.
-Download the container in the release section and import it using the `docker load` command:
+Download the container in the [release section](https://github.com/indigo-dc/orchent/releases)(choose the latest stable version) and import it using the `docker load` command, e.g.:
 ```
 docker load --input orchent_container_1.1.0.tar
 ```
