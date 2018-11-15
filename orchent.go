@@ -629,13 +629,13 @@ func try_agent_token(account string) (tokenSet bool, tokenValue string) {
 	}
 
 	response[length] = 0
-	oidcToken := make(map[string]string)
+	oidcToken := make(map[string]interface{})
 	jsonErr := json.Unmarshal(response[0:length], &oidcToken)
 	if jsonErr != nil {
 		user_info("error parsing the oidc response: %s\n", jsonErr)
 		return tokenSet, tokenValue
 	}
-	tokenValue, tokenSet = oidcToken["access_token"]
+	tokenValue, tokenSet = oidcToken["access_token"].(string)
 	if tokenSet {
 		user_info("received token from oidc-agent\n")
 	}
