@@ -60,7 +60,7 @@ ORCHENT_VERSION=`./orchent --version 2>&1`
 ORCHENT_TAG="$DOCKER_REPO:$ORCHENT_VERSION"
 ORCHENT_DOCKER="$PATH_TO_REPO/orchent_container_${ORCHENT_VERSION}.tar"
 docker image rm -f "$ORCHENT_TAG"
-docker build -t "$ORCHENT_TAG" .
+docker build --no-cache -t "$ORCHENT_TAG" .
 cd $PATH_TO_REPO
 rm -rf /tmp/orchent_docker/
 docker save --output "$ORCHENT_DOCKER" "$ORCHENT_TAG"
