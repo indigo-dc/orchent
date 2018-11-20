@@ -5,7 +5,7 @@ CURRENT_DIR=`pwd`
 cd `dirname $0`
 cd ..
 SOURCE_DIR=`pwd`
-VERSION=`git describe --tags`
+VERSION=`git describe --abbrev=0 --tags`
 source ./utils/prepare_system.sh
 
 # expecting to be in $GOPATH/src/github.com/indigo-dc/orchent
