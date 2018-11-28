@@ -161,7 +161,7 @@ pipeline {
                     'DPM',
                     '10204',
                     "[preview-testbed] New orchent version ${env.BRANCH_NAME} available",
-                    "Check new artifacts at:\n\t- Docker image: [${dockerhub_image_id}|https://hub.docker.com/r/${dockerhub_repo}/tags/]\n",
+                    "Check new artifacts at:\n\t- Docker image: [${dockerhub_image_id}|https://hub.docker.com/r/${dockerhub_repo}/tags/]\n\t- RPMs/DEBs: ${env.BUILD_URL}\n",
                     ['wp3', 'preview-testbed', "orchent-${env.BRANCH_NAME}"],
                     'Task',
                     'mariojmdavid'
