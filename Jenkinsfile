@@ -151,7 +151,7 @@ pipeline {
             }
         }
 
-        stage('Notifications') {
+        stage('Notifications DEEP') {
             when {
                 buildingTag()
             }
@@ -168,5 +168,24 @@ pipeline {
                 )
             }
         }
+        
+        stage('Notifications XDC') {
+            when {
+                tag 'v*'
+            }
+            steps {
+                JiraIssueNotification(
+                    'XDC',
+                    'XDM',
+                    '10100',
+                    "[preview-testbed] New Orchent version ${env.BRANCH_NAME} available",
+                    "Check new artifacts at:\n\t- Docker image: [${dockerhub_image_id}|https://hub.docker.com/r/${dockerhub_repo}/tags/]\n\t- RPMs/DEBs: ${env.BUILD_URL}\n",
+                    ['wp3', 'preview-testbed', "orchent-${env.BRANCH_NAME}"],
+                    'Task',
+                    'cduma'
+                )
+            }
+        }
+
     }
 }
