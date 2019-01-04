@@ -101,12 +101,12 @@ pipeline {
         }
 
         stage('Build RPM/DEB packages') {
-            when {
+/*            when {
                 anyOf {
                     buildingTag()
                     branch 'master'
                 }
-            }
+            } */
             parallel {
                 stage('Build on Ubuntu16.04') {
                     agent {
