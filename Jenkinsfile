@@ -181,8 +181,8 @@ pipeline {
                                     "Check new artifacts at:\n\t- Docker image: [${dockerhub_image_id}|https://hub.docker.com/r/${dockerhub_repo}/tags/]\n\t- RPMs/DEBs: ${env.BUILD_URL}",
                                     ['WP3', 't3.2', 'preview-testbed', "orchent-${env.BRANCH_NAME}"],
                                     'Task',
-                                    'cduma',
-                                    ['cduma']
+                                    'doinacristinaduma',
+                                    ['doinacristinaduma']
                                 )
                         }
                 }
