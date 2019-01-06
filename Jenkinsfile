@@ -101,12 +101,12 @@ pipeline {
         }
 
         stage('Build RPM/DEB packages') {
-/*            when {
+            when {
                 anyOf {
                     buildingTag()
                     branch 'master'
                 }
-            } */
+            } 
             parallel {
                 stage('Build on Ubuntu16.04') {
                     agent {
@@ -167,8 +167,12 @@ pipeline {
                                     ['wp3', 'preview-testbed', "orchent-${env.BRANCH_NAME}"],
                                     'Task',
                                     'mariojmdavid',
-                                    ['cduma']
-                                )              
+                                    ['wgcastell',
+                                     'vkozlov',
+                                     'dlugo',
+                                     'keiichiito',
+                                     'laralloret',
+                                     'ignacioheredia']                                )              
                         }
                 }
                 stage('Notify XDC') {
