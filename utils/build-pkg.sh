@@ -21,7 +21,7 @@ GOOS=linux GOARCH=amd64 go build -o build/amd64/orchent orchent.go
 case $DISTRIBUTION in
     debian)
         GO_BIN="go-bin-deb"
-        PKG="orchent_$VERSION_amd64.deb"
+        PKG="orchent_${VERSION}_amd64.deb"
         PFLAG="-w"
         ;;
     centos)
