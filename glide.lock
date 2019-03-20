@@ -1,5 +1,5 @@
-hash: f0dce77bf497f0d50bd094f2b94e2053497692c6b114bfb1f446c007d646f86b
-updated: 2017-07-21T14:20:59.210059963+02:00
+hash: c22dfc173acb9cd3dbbf6e422e11ac32d9ee7fcf9836c08d5b4a663cde223e0b
+updated: 2019-03-20T15:45:19.60946498+01:00
 imports:
 - name: github.com/alecthomas/template
   version: a0175ee3bccc567396460bf5acd36800cb10c49c
@@ -11,74 +11,24 @@ imports:
   version: a368813c5e648fee92e5f6c30e3944ff9d5e8895
 - name: github.com/codegangsta/cli
   version: 4b90d79a682b4bf685762c7452db20f2a676ecb2
-- name: github.com/coreos/pkg
-  version: 447b7ec906e523386d9c53be15b55a8ae86ea944
-  subpackages:
-  - flagutil
 - name: github.com/dghubble/sling
   version: eb56e89ac5088bebb12eef3cb4b293300f43608b
 - name: github.com/ghodss/yaml
   version: 0ca9ea5df5451ffdf184b4428c902747c2c11cd7
 - name: github.com/go-ini/ini
   version: 3d73f4b845efdf9989fffd4b4e562727744a34ba
-- name: github.com/golang/protobuf
-  version: 8ee79997227bf9b34611aee7946ae64735e6fd93
-  subpackages:
-  - proto
 - name: github.com/google/go-querystring
   version: 9235644dd9e52eeae6fa48efd539fdc351a0af53
   subpackages:
   - query
+- name: github.com/zachmann/liboidcagent-go
+  version: 0fe761bf9f7b97d87e227d19f4e70437e5b60574
+  subpackages:
+  - liboidcagent
 - name: github.com/zpatrick/go-config
   version: 710646a45582fde23bf77bacbc2f38008dc7ffc2
-- name: golang.org/x/net
-  version: 45e771701b814666a7eb299e6c7a57d0b1799e91
-  subpackages:
-  - context
-- name: golang.org/x/oauth2
-  version: 314dd2c0bf3ebd592ec0d20847d27e79d0dbe8dd
-  subpackages:
-  - internal
-- name: google.golang.org/appengine
-  version: 08a149cfaee099e6ce4be01c0113a78c85ee1dee
-  subpackages:
-  - internal
-  - internal/base
-  - internal/datastore
-  - internal/log
-  - internal/remote_api
-  - internal/urlfetch
-  - urlfetch
 - name: gopkg.in/alecthomas/kingpin.v2
   version: e9044be3ab2a8e11d4e1f418d12f0790d57e8d70
 - name: gopkg.in/yaml.v2
   version: a83829b6f1293c91addabc89d0571c246397bbf4
-testImports:
-- name: github.com/alecthomas/assert
-  version: 561411bbb7e98b005e520f4c0f491c2d23782048
-- name: github.com/alecthomas/colour
-  version: 60882d9e27213e8552dcff6328914fe4c2b44bc9
-- name: github.com/alecthomas/repr
-  version: d44565ca483f0ed23c2ac9cda62c966b116e77a3
-- name: github.com/davecgh/go-spew
-  version: 04cdfd42973bb9c8589fd6a731800cf222fde1a9
-  subpackages:
-  - spew
-- name: github.com/mattn/go-isatty
-  version: 56b76bdf51f7708750eac80fa38b952bb9f32639
-- name: github.com/pmezard/go-difflib
-  version: d8ed2627bdf02c080bf22230dbb337003b7aba2d
-  subpackages:
-  - difflib
-- name: github.com/sergi/go-diff
-  version: 83532ca1c1caa393179c677b6facf48e61f4ca5d
-  subpackages:
-  - diffmatchpatch
-- name: github.com/stretchr/testify
-  version: 2402e8e7a02fc811447d11f881aa9746cdc57983
-  subpackages:
-  - assert
-- name: golang.org/x/sys
-  version: a408501be4d17ee978c04a618e7a1b22af058c0e
-  subpackages:
-  - unix
+testImports: []
