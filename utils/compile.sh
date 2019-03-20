@@ -31,6 +31,9 @@ echo "done"
 echo -n "  go-config ... "
 go get github.com/zpatrick/go-config
 echo "done"
+echo -n "  liboidcagent ... "
+go get github.com/zachmann/liboidcagent-go/liboidcagent
+echo "done"
 echo -n "building orchent ... "
 go build -o orchent ${GOPATH}/orchent.go
 echo "done"
