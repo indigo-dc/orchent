@@ -6,9 +6,6 @@ import (
 	"crypto/x509"
 	"encoding/json"
 	"fmt"
-	"github.com/dghubble/sling"
-	"github.com/zpatrick/go-config"
-	"gopkg.in/alecthomas/kingpin.v2"
 	"net"
 	"net/http"
 	"net/url"
@@ -16,9 +13,13 @@ import (
 	"os/user"
 	"strconv"
 	"strings"
+
+	"github.com/dghubble/sling"
+	"github.com/zpatrick/go-config"
+	"gopkg.in/alecthomas/kingpin.v2"
 )
 
-const OrchentVersion string = "1.2.2"
+const OrchentVersion string = "1.2.3"
 
 var (
 	app     = kingpin.New("orchent", "The orchestrator client. \n \nPlease either store your access token in 'ORCHENT_TOKEN' or set the account to use with oidc-agent in the 'ORCHENT_AGENT_ACCOUNT' and the socket of the oidc-agent in the 'OIDC_SOCK' environment variable: \n export ORCHENT_TOKEN=<your access token> \n         OR \n export OIDC_SOCK=<path to the oidc-agent socket> (usually this is already exported) \n export ORCHENT_AGENT_ACCOUNT=<account to use> \nIf you need to specify the file containing the trusted root CAs use the 'ORCHENT_CAFILE' environment variable: \n export ORCHENT_CAFILE=<path to file containing trusted CAs>\n \n").Version(OrchentVersion)
@@ -32,20 +33,20 @@ var (
 	showDep     = app.Command("depshow", "show a specific deployment")
 	showDepUuid = showDep.Arg("uuid", "the uuid of the deployment to display").Required().String()
 
-	createDep                   = app.Command("depcreate", "create a new deployment")
-	createDepCallback           = createDep.Flag("callback", "the callback url").Default("").String()
-	createDepMaxProvidersRetry  = createDep.Flag("maxProvidersRetry", "Maximum number of cloud providers to be used in case of failure (Default: UNBOUNDED).").Uint8()
-	createDepKeepLastAttempt    = createDep.Flag("keepLastAttempt", "In case of failure, keep the resources allocated in the last try (Default: true).").Default("true").Enum("true", "false")
-	createDepTemplate           = createDep.Arg("template", "the tosca template file").Required().File()
-	createDepParameter          = createDep.Arg("parameter", "the parameter to set (json object)").Required().String()
+	createDep                  = app.Command("depcreate", "create a new deployment")
+	createDepCallback          = createDep.Flag("callback", "the callback url").Default("").String()
+	createDepMaxProvidersRetry = createDep.Flag("maxProvidersRetry", "Maximum number of cloud providers to be used in case of failure (Default: UNBOUNDED).").Uint8()
+	createDepKeepLastAttempt   = createDep.Flag("keepLastAttempt", "In case of failure, keep the resources allocated in the last try (Default: true).").Default("true").Enum("true", "false")
+	createDepTemplate          = createDep.Arg("template", "the tosca template file").Required().File()
+	createDepParameter         = createDep.Arg("parameter", "the parameter to set (json object)").Required().String()
 
-	updateDep                   = app.Command("depupdate", "update the given deployment")
-	updateDepCallback           = updateDep.Flag("callback", "the callback url").Default("").String()
-	updateDepMaxProvidersRetry  = updateDep.Flag("maxProvidersRetry", "Maximum number of cloud providers to be used in case of failure (Default: UNBOUNDED).").Uint8()
-	updateDepKeepLastAttempt    = updateDep.Flag("keepLastAttempt", "In case of failure, keep the resources allocated in the last try (Default: true).").Default("true").Enum("true", "false")
-	updateDepUuid               = updateDep.Arg("uuid", "the uuid of the deployment to update").Required().String()
-	updateDepTemplate           = updateDep.Arg("template", "the tosca template file").Required().File()
-	updateDepParameter          = updateDep.Arg("parameter", "the parameter to set (json object)").Required().String()
+	updateDep                  = app.Command("depupdate", "update the given deployment")
+	updateDepCallback          = updateDep.Flag("callback", "the callback url").Default("").String()
+	updateDepMaxProvidersRetry = updateDep.Flag("maxProvidersRetry", "Maximum number of cloud providers to be used in case of failure (Default: UNBOUNDED).").Uint8()
+	updateDepKeepLastAttempt   = updateDep.Flag("keepLastAttempt", "In case of failure, keep the resources allocated in the last try (Default: true).").Default("true").Enum("true", "false")
+	updateDepUuid              = updateDep.Arg("uuid", "the uuid of the deployment to update").Required().String()
+	updateDepTemplate          = updateDep.Arg("template", "the tosca template file").Required().File()
+	updateDepParameter         = updateDep.Arg("parameter", "the parameter to set (json object)").Required().String()
 
 	depTemplate     = app.Command("deptemplate", "show the template of the given deployment")
 	templateDepUuid = depTemplate.Arg("uuid", "the uuid of the deployment to get the template").Required().String()
@@ -378,7 +379,7 @@ func receive_and_print_deploymentlist(complete *sling.Sling, before int, after i
 }
 
 func deployment_create_update(templateFile *os.File, parameter string, callback string, maxProvidersRetry uint8, keepLastAttempt string, depUuid *string, base *sling.Sling) {
-		
+
 	var parameterMap map[string]interface{}
 	paramErr := json.Unmarshal([]byte(parameter), &parameterMap)
 	if paramErr != nil {
@@ -400,11 +401,11 @@ func deployment_create_update(templateFile *os.File, parameter string, callback 
 	}
 	template := string(data[:count])
 	body := &OrchentCreateRequest{
-		Template:   template,
-		Parameters: parameterMap,
-		Callback:   callback,
+		Template:          template,
+		Parameters:        parameterMap,
+		Callback:          callback,
 		MaxProvidersRetry: maxProvidersRetry,
-		KeepLastAttempt: keepLastAttempt,
+		KeepLastAttempt:   keepLastAttempt,
 	}
 	deployment := new(OrchentDeployment)
 	orchentError := new(OrchentError)
@@ -427,7 +428,7 @@ func deployment_create_update(templateFile *os.File, parameter string, callback 
 		if depUuid == nil {
 			fmt.Printf("%s\n", deployment)
 		} else {
-			fmt.Println("update of deployment %s successfully triggered\n", depUuid)
+			fmt.Printf("update of deployment %s successfully triggered\n", *depUuid)
 		}
 	}
 }
@@ -597,7 +598,7 @@ func get_account() (issuerSet bool, agentIssuer string) {
 }
 
 func user_info(format string, a ...interface{}) {
-	fmt.Printf(format, a)
+	fmt.Printf(format, a...)
 }
 
 func try_agent_token(account string) (tokenSet bool, tokenValue string) {
