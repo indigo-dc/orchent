@@ -4,4 +4,4 @@ import:
   version: 1.1.0
 - package: gopkg.in/alecthomas/kingpin.v2
 - package: github.com/zpatrick/go-config
-- package: github.com/zachmann/liboidcagent-go/liboidcagent
+- package: github.com/indigo-dc/liboidcagent-go/liboidcagent

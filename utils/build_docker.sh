@@ -47,7 +47,7 @@ echo -n "  go-config ... "
 go get github.com/zpatrick/go-config
 echo "done"
 echo -n "  liboidcagent ... "
-go get github.com/zachmann/liboidcagent-go/liboidcagent
+go get github.com/indigo-dc/liboidcagent-go/liboidcagent
 echo "done"
 echo -n "building orchent ... "
 CGO_ENABLED=0 GOOS=linux go build -a -v -o $ORCHENT ${GOPATH}/orchent.go

@@ -14,12 +14,12 @@ import (
 	"strings"
 
 	"github.com/dghubble/sling"
-	"github.com/zachmann/liboidcagent-go/liboidcagent"
+	"github.com/indigo-dc/liboidcagent-go/liboidcagent"
 	"github.com/zpatrick/go-config"
 	"gopkg.in/alecthomas/kingpin.v2"
 )
 
-const OrchentVersion string = "1.2.3"
+const OrchentVersion string = "1.2.4"
 
 var (
 	app     = kingpin.New("orchent", "The orchestrator client. \n \nPlease either store your access token in 'ORCHENT_TOKEN' or set the account to use with oidc-agent in the 'ORCHENT_AGENT_ACCOUNT' and the socket of the oidc-agent in the 'OIDC_SOCK' environment variable: \n export ORCHENT_TOKEN=<your access token> \n         OR \n export OIDC_SOCK=<path to the oidc-agent socket> (usually this is already exported) \n export ORCHENT_AGENT_ACCOUNT=<account to use> \nIf you need to specify the file containing the trusted root CAs use the 'ORCHENT_CAFILE' environment variable: \n export ORCHENT_CAFILE=<path to file containing trusted CAs>\n \n").Version(OrchentVersion)
