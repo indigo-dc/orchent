@@ -33,6 +33,7 @@ pipeline {
             }
         }
 
+        /*
         stage('Dependency check') {
             agent {
                 label 'docker-build'
@@ -51,6 +52,7 @@ pipeline {
                 }
             }
         }
+        */
         
         stage('Metrics gathering') {
             agent {
