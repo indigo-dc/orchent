@@ -109,7 +109,6 @@ pipeline {
             when {
                 anyOf {
                     buildingTag()
-                    branch 'master'
                 }
             } 
             parallel {
