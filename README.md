@@ -1,6 +1,6 @@
 # orchent
 
-[![Build Status](https://jenkins.indigo-datacloud.eu:8080/buildStatus/icon?job=Pipeline-as-code/orchent/master)](https://jenkins.indigo-datacloud.eu:8080/job/Pipeline-as-code/job/orchent/job/master/)
+[![Build Status](https://jenkins.indigo-datacloud.eu/buildStatus/icon?job=Pipeline-as-code/orchent/master)](https://jenkins.indigo-datacloud.eu/job/Pipeline-as-code/job/orchent/job/master/)
 
 The Orchestrator Command Line Client
 
