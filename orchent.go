@@ -152,19 +152,6 @@ type OrchentDeployment struct {
 	Links                  []OrchentLink          `json:"links"`
 }
 
-type OrchentDeploymentShort struct {
-        Uuid              string                 `json:"uuid"`
-        CreationTime      string                 `json:"creationTime"`
-        UpdateTime        string                 `json:"updateTime"`
-        Status            string                 `json:"status"`
-        StatusReason      string                 `json:"statusReason"`
-        Task              string                 `json:"task"`
-        CloudProviderName string                 `json:"CloudProviderName"`
-        Callback          string                 `json:"callback"`
-        Outputs           map[string]interface{} `json:"outputs"`
-        Links             []OrchentLink          `json:"links"`
-}
-
 type OrchentResource struct {
 	Uuid          string        `json:"uuid"`
 	CreationTime  string        `json:"creationTime"`
