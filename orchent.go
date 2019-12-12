@@ -30,8 +30,9 @@ var (
 	lsDepBefore = lsDep.Flag("before", "filter the deployments, they must be created before the given date/time, the format is YYYYMMDDHHMM").Short('b').String()
 	lsDepAfter  = lsDep.Flag("after", "filter the deployments, they must be created after the given date/time, the format is YYYYMMDDHHMM").Short('a').String()
 
-	showDep     = app.Command("depshow", "show a specific deployment")
-	showDepUuid = showDep.Arg("uuid", "the uuid of the deployment to display").Required().String()
+	showDep        = app.Command("depshow", "show a specific deployment")
+	showDepUuid    = showDep.Arg("uuid", "the uuid of the deployment to display").Required().String()
+	showDepVerbose = showDep.Flag("verbose", "enable verbose output").Default("false").Bool()
 
 	createDep                  = app.Command("depcreate", "create a new deployment")
 	createDepCallback          = createDep.Flag("callback", "the callback url").Default("").String()
@@ -62,6 +63,7 @@ var (
 	showResResUuid = showRes.Arg("resource uuid", "the uuid of the resource to show").Required().String()
 
 	testUrl = app.Command("test", "test if the given url is pointing to an orchestrator, please use this to ensure there is no typo in the url.")
+	getConfig = app.Command("showconf", "list the endpoints used by the current orchestrator.")
 )
 
 type OrchentError struct {
@@ -129,17 +131,25 @@ func deployment_time_to_number(time string) int {
 	return value
 }
 
+type OrchentCreatedBy struct {
+      Issuer    string    `json:"issuer"`
+      Subject   string    `json:"subject"`
+}
+
 type OrchentDeployment struct {
-	Uuid              string                 `json:"uuid"`
-	CreationTime      string                 `json:"creationTime"`
-	UpdateTime        string                 `json:"updateTime"`
-	Status            string                 `json:"status"`
-	StatusReason      string                 `json:"statusReason"`
-	Task              string                 `json:"task"`
-	CloudProviderName string                 `json:"CloudProviderName"`
-	Callback          string                 `json:"callback"`
-	Outputs           map[string]interface{} `json:"outputs"`
-	Links             []OrchentLink          `json:"links"`
+	Uuid                   string                 `json:"uuid"`
+	CreationTime           string                 `json:"creationTime"`
+	UpdateTime             string                 `json:"updateTime"`
+	CreatedBy              OrchentCreatedBy       `json:"createdBy"`
+	PhysicalId             string                 `json:"physicalId"`
+	Status                 string                 `json:"status"`
+	StatusReason           string                 `json:"statusReason"`
+	Task                   string                 `json:"task"`
+	CloudProviderName      string                 `json:"cloudProviderName"`
+	CloudProviderEndpoint  map[string]interface{} `json:"cloudProviderEndpoint"`
+	Callback               string                 `json:"callback"`
+	Outputs                map[string]interface{} `json:"outputs"`
+	Links                  []OrchentLink          `json:"links"`
 }
 
 type OrchentResource struct {
@@ -198,42 +208,56 @@ func (depList OrchentDeploymentList) String() string {
 	}
 	output = output + fmt.Sprintln("\n")
 	for _, dep := range depList.Deployments {
-		output = output + deployment_to_string(dep, true)
+		output = output + deployment_to_string(dep, 0)
 	}
 	return output
 }
 
 func (dep OrchentDeployment) String() string {
-	output := deployment_to_string(dep, false)
+	output := deployment_to_string(dep, 1)
 	return output
 }
 
-func deployment_to_string(dep OrchentDeployment, short bool) string {
+func (createdby OrchentCreatedBy) String() string {
+        output := ""
+	output = output + fmt.Sprintf("  { issuer: %s;", createdby.Issuer)
+        output = output + fmt.Sprintf(" subject: %s }", createdby.Subject)
+        return output
+}
+
+
+func deployment_to_string(dep OrchentDeployment, verboseLevel int) string {
 	output := ""
-	lines := []string{"Deployment [" + dep.Uuid + "]:",
-		"  status: " + dep.Status,
-		"  creation time: " + dep.CreationTime,
-		"  update time: " + dep.UpdateTime,
-		"  callback: " + dep.Callback,
+	outputs, _ := json.MarshalIndent(dep.Outputs, "  ", "    ")
+        lines := []string{"Deployment [" + dep.Uuid + "]:",
+                "  status: " + dep.Status,
+                "  creation time: " + dep.CreationTime,
+                "  update time: " + dep.UpdateTime,
 	}
-	if !short {
-		outputs, _ := json.MarshalIndent(dep.Outputs, "  ", "    ")
+	switch verboseLevel {
+	case 0:
+	case 1:
+		lines = append(lines, []string { "  outputs: \n  " + fmt.Sprintf("%s", outputs) }...)
+	case 2:
+		endpoint, _ := json.MarshalIndent(dep.CloudProviderEndpoint, "  ", "    ")
 		more_lines := []string{
+			"  physical id: " + dep.PhysicalId,
+			"  created by: " +  fmt.Sprintf("%s", dep.CreatedBy),
 			"  status reason: " + dep.StatusReason,
 			"  task: " + dep.Task,
+			"  callback: " + dep.Callback,
 			"  CloudProviderName: " + dep.CloudProviderName,
-			"  outputs: \n  " + fmt.Sprintf("%s", outputs),
+			"  CloudProviderEndpoint: " + fmt.Sprintf("%s", endpoint),
 			"  links:"}
 		lines = append(lines, more_lines...)
-	}
-	for _, line := range lines {
-		output = output + fmt.Sprintf("%s\n", line)
-	}
-	if !short {
 		for _, link := range dep.Links {
-			output = output + fmt.Sprintf("    %s\n", link)
+			lines = append(lines, []string { output + fmt.Sprintf("    %s\n", link) }...)
 		}
 	}
+
+	for _, line := range lines {
+		output = output + fmt.Sprintf("%s\n", line)
+        }
 	return output
 
 }
@@ -433,7 +457,7 @@ func deployment_create_update(templateFile *os.File, parameter string, callback 
 	}
 }
 
-func deployment_show(uuid string, base *sling.Sling) {
+func deployment_show(uuid string, verbose bool, base *sling.Sling) {
 	deployment := new(OrchentDeployment)
 	orchentError := new(OrchentError)
 	base = base.Get("./deployments/" + uuid)
@@ -445,7 +469,11 @@ func deployment_show(uuid string, base *sling.Sling) {
 	if is_error(orchentError) {
 		fmt.Printf("error requesting deployment %s:\n %s\n", uuid, orchentError)
 	} else {
-		fmt.Printf("%s\n", deployment)
+		if verbose {
+			fmt.Printf("%s\n", deployment_to_string(*deployment, 2) )
+		} else {
+			fmt.Printf("%s\n", deployment_to_string(*deployment, 1) )
+		}
 	}
 }
 
@@ -549,6 +577,25 @@ func test_url(base *sling.Sling) {
 	} else {
 		fmt.Println("looks like the orchent url is valid")
 	}
+}
+
+func get_conf(base *sling.Sling) {
+	fmt.Println("retrieving orchestrator configuration:")
+	config := make(map[string]string)
+	orchentError := new(OrchentError)
+	base = base.Get("./configuration")
+	_, err := base.Receive(&config, orchentError)
+	if err != nil {
+		fmt.Println("error requesting orchestrator configuration: %s\n", err)
+                return
+        }
+        if is_error(orchentError) {
+                fmt.Println("error requesting orchestrator configuration: %s\n", orchentError)
+        } else {
+		for key, value := range config {
+			fmt.Printf("    %s: %s\n", key, value)
+		}
+        }
 }
 
 func settings() map[string]string {
@@ -673,7 +720,7 @@ func main() {
 		baseUrl := get_base_url()
 		base := base_connection(baseUrl)
 		uuid := try_alias_uuid(*showDepUuid, aliases)
-		deployment_show(uuid, base)
+		deployment_show(uuid, *showDepVerbose, base)
 
 	case createDep.FullCommand():
 		baseUrl := get_base_url()
@@ -715,5 +762,10 @@ func main() {
 		baseUrl := get_base_url()
 		base := base_connection(baseUrl)
 		test_url(base)
-	}
+
+	case getConfig.FullCommand():
+                baseUrl := get_base_url()
+                base := base_connection(baseUrl)
+                get_conf(base)
+        }
 }

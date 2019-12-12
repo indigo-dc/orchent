@@ -28,16 +28,26 @@ orchent helps you as much as possible:
 ```
 usage: orchent [<flags>] <command> [<args> ...]
 
-The orchestrator client. Please store your access token in the 'ORCHENT_TOKEN' environment
-variable: 'export ORCHENT_TOKEN=<your access token>'. If you need to specify the file
-containing the trusted root CAs use the 'ORCHENT_CAFILE' environment variable:
-'export ORCHENT_CAFILE=<path to file containing trusted CAs>'.
+The orchestrator client.
+
+
+
+Please either store your access token in 'ORCHENT_TOKEN' or set the account to use with oidc-agent in the 'ORCHENT_AGENT_ACCOUNT' and the socket of the oidc-agent in the 'OIDC_SOCK' environment variable:
+
+  export ORCHENT_TOKEN=<your access token>
+          OR
+  export OIDC_SOCK=<path to the oidc-agent socket> (usually this is already exported)
+  export ORCHENT_AGENT_ACCOUNT=<account to use>
+
+If you need to specify the file containing the trusted root CAs use the 'ORCHENT_CAFILE' environment variable:
+
+  export ORCHENT_CAFILE=<path to file containing trusted CAs>
+
 
 Flags:
       --help     Show context-sensitive help (also try --help-long and --help-man).
       --version  Show application version.
-  -u, --url=URL  the base url of the orchestrator rest interface. Alternative the environment
-                 variable 'ORCHENT_URL' can be used: 'export ORCHENT_URL=<the_url>'
+  -u, --url=URL  the base url of the orchestrator rest interface. Alternative the environment variable 'ORCHENT_URL' can be used: 'export ORCHENT_URL=<the_url>'
 
 Commands:
   help [<command>...]
@@ -46,7 +56,7 @@ Commands:
   depls [<flags>]
     list deployments
 
-  depshow <uuid>
+  depshow [<flags>] <uuid>
     show a specific deployment
 
   depcreate [<flags>] <template> <parameter>
@@ -68,11 +78,10 @@ Commands:
     show a specific resource of a given deployment
 
   test
-    test if the given url is pointing to an orchestrator, please use this to ensure
-    there is no typo in the url.
+    test if the given url is pointing to an orchestrator, please use this to ensure there is no typo in the url.
 
-
-
+  showconf
+    list the endpoints used by the current orchestrator.
 ```
 
 Before using the orchestrator with orchent you need to export your IAM access token:
