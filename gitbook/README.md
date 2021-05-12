@@ -1,5 +1,6 @@
-# Orchent, the orchestrator client
+# Introduction
+
 ## Purpose
 
-Orchent is a command line application to manage deployments and their resources
-on the (orchestrator)[] in a fast and easy way.
+Orchent is a command line application to manage deployments and their resources on the \(orchestrator\) in a fast and easy way.
+
