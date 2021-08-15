@@ -32,6 +32,15 @@ jobs:
         mkdir -p .rpmpkg/usr/bin
         cp build/orchent-amd64-linux -p .rpmpkg/usr/bin/orchent       
 
+    - name:
+      run: |
+        rpm_version="${github_ref/-/.}"
+        echo $rpm_version
+        #echo "::set-env name=ref::$ref"
+        echo "rpm_version=$rpm_version" >> $GITHUB_ENV
+      env:
+        github_ref: ${{ github.ref }}
+
     - name: Create deb package
       uses: jiro4989/build-deb-action@v2
       with:
@@ -49,7 +58,7 @@ jobs:
         package: orchent
         package_root: .rpmpkg
         maintainer: Marica Antonacci <marica.antonacci@ba.infn.it>
-        version: ${{ github.ref }} 
+        version: ${{ rpm_version }} 
         arch: 'x86_64'
         desc: 'orchent cli'
 
