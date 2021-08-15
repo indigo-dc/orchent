@@ -43,12 +43,11 @@ jobs:
       run: |
          ls -latr
       
-#    - name: Release
-#      uses: softprops/action-gh-release@v1
-#        #if: startsWith(github.ref, 'refs/tags/')
-#      with:
-#        body_path: CHANGELOG.md
-#        draft: true
-#        files: |
-#          build/orchent-amd64-linux
-#          build/orchent-amd64-darwin
+    - name: Release
+      uses: softprops/action-gh-release@v1
+        #if: startsWith(github.ref, 'refs/tags/')
+      with:
+        body_path: CHANGELOG.md
+        draft: true
+        files: |
+          orchent_${{ github.ref }}_amd64.deb
