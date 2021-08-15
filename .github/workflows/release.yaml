@@ -19,7 +19,11 @@ jobs:
         go-version: 1.16
 
     - name: Build
-      run: CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -ldflags '-w -extldflags "-static"' -o orchent orchent.go
+      run: |
+        mkdir -p build
+        CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -ldflags '-w -extldflags "-static"' -o build/orchent-amd64-linux orchent.go
+        CGO_ENABLED=0  GOOS=darwin GOARCH=amd64 go build -a -ldflags '-w -extldflags "-static"' -o build/orchent-amd64-darwin orchent.go
+        
       
     - name: Release
       uses: softprops/action-gh-release@v1
@@ -27,4 +31,5 @@ jobs:
       with:
         draft: true
         files: |
-          orchent
+          build/orchent-amd64-linux
+          build/orchent-amd64-darwin
