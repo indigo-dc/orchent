@@ -28,15 +28,29 @@ jobs:
       run: |
         mkdir -p .debpkg/usr/bin
         cp build/orchent-amd64-linux .debpkg/usr/bin/orchent
-        chmod +x .debpkg/usr/bin/orchent       
+        chmod +x .debpkg/usr/bin/orchent
+        mkdir -p .rpmpkg/usr/bin
+        cp build/orchent-amd64-linux -p .rpmpkg/usr/bin/orchent       
 
-    - uses: jiro4989/build-deb-action@v2
+    - name: Create deb package
+      uses: jiro4989/build-deb-action@v2
       with:
         package: orchent
         package_root: .debpkg
         maintainer: Marica Antonacci <marica.antonacci@ba.infn.it>
         version: ${{ github.ref }} 
         arch: 'amd64'
+        desc: 'orchent cli'
+
+    - name: Create rpm package
+      uses: jiro4989/build-rpm-action@v2
+      with:
+        summary: 'orchent cli'
+        package: orchent
+        package_root: .rpmpkg
+        maintainer: Marica Antonacci <marica.antonacci@ba.infn.it>
+        version: ${{ github.ref }} 
+        arch: 'x86_64'
         desc: 'orchent cli'
 
     - name: debug
@@ -51,3 +65,4 @@ jobs:
         draft: true
         files: |
           orchent_${{ github.ref }}_amd64.deb
+          build/orchent-amd64-darwin
