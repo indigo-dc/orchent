@@ -36,8 +36,7 @@ jobs:
       run: |
         rpm_version="${github_ref/-/.}"
         echo $rpm_version
-        #echo "::set-env name=ref::$ref"
-        echo "rpm_version=$rpm_version" >> $GITHUB_ENV
+        echo "REF=$rpm_version" >> $GITHUB_ENV
       env:
         github_ref: ${{ github.ref }}
 
@@ -58,7 +57,7 @@ jobs:
         package: orchent
         package_root: .rpmpkg
         maintainer: Marica Antonacci <marica.antonacci@ba.infn.it>
-        version: $rpm_version 
+        version: ${{ env.REF }}
         arch: 'x86_64'
         desc: 'orchent cli'
 
