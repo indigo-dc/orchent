@@ -58,7 +58,7 @@ jobs:
         package: orchent
         package_root: .rpmpkg
         maintainer: Marica Antonacci <marica.antonacci@ba.infn.it>
-        version: ${{ rpm_version }} 
+        version: $rpm_version 
         arch: 'x86_64'
         desc: 'orchent cli'
 
