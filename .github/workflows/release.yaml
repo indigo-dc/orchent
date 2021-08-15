@@ -39,8 +39,8 @@ jobs:
         arch: 'amd64'
         desc: 'orchent cli'
 
-     - name: debug
-       run: |
+    - name: debug
+      run: |
          ls -latr
       
 #    - name: Release
