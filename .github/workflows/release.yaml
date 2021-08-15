@@ -24,13 +24,31 @@ jobs:
         CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -ldflags '-w -extldflags "-static"' -o build/orchent-amd64-linux orchent.go
         CGO_ENABLED=0  GOOS=darwin GOARCH=amd64 go build -a -ldflags '-w -extldflags "-static"' -o build/orchent-amd64-darwin orchent.go
         
-      
-    - name: Release
-      uses: softprops/action-gh-release@v1
-        #if: startsWith(github.ref, 'refs/tags/')
+    - name: Prepare packages
+      run: |
+        mkdir -p .debpkg/usr/bin
+        cp build/orchent-amd64-linux .debpkg/usr/bin/orchent
+        chmod +x .debpkg/usr/bin/orchent       
+
+    - uses: jiro4989/build-deb-action@v2
       with:
-        body_path: CHANGELOG.md
-        draft: true
-        files: |
-          build/orchent-amd64-linux
-          build/orchent-amd64-darwin
+        package: orchent
+        package_root: .debpkg
+        maintainer: Marica Antonacci <marica.antonacci@ba.infn.it>
+        version: ${{ github.ref }} 
+        arch: 'amd64'
+        desc: 'orchent cli'
+
+     - name: debug
+       run: |
+         ls -latr
+      
+#    - name: Release
+#      uses: softprops/action-gh-release@v1
+#        #if: startsWith(github.ref, 'refs/tags/')
+#      with:
+#        body_path: CHANGELOG.md
+#        draft: true
+#        files: |
+#          build/orchent-amd64-linux
+#          build/orchent-amd64-darwin
