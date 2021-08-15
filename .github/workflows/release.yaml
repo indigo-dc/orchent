@@ -30,9 +30,10 @@ jobs:
         cp build/orchent-amd64-linux .debpkg/usr/bin/orchent
         chmod +x .debpkg/usr/bin/orchent
         mkdir -p .rpmpkg/usr/bin
-        cp build/orchent-amd64-linux -p .rpmpkg/usr/bin/orchent       
+        cp build/orchent-amd64-linux .rpmpkg/usr/bin/orchent
+        chmod +x .rpmpkg/usr/bin/orchent       
 
-    - name:
+    - name: Set rpm version
       run: |
         rpm_version="${github_ref/-/.}"
         echo $rpm_version
