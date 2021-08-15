@@ -73,5 +73,6 @@ jobs:
         body_path: CHANGELOG.md
         draft: true
         files: |
-          orchent_${{ github.ref }}_amd64.deb
+          *.deb
+          *.rpm
           build/orchent-amd64-darwin
