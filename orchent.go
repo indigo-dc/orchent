@@ -39,7 +39,7 @@ var (
 	createDepCallback          = createDep.Flag("callback", "the callback url").Default("").String()
 	createDepMaxProvidersRetry = createDep.Flag("maxProvidersRetry", "Maximum number of cloud providers to be used in case of failure (Default: UNBOUNDED).").Uint8()
 	createDepKeepLastAttempt   = createDep.Flag("keepLastAttempt", "In case of failure, keep the resources allocated in the last try (Default: true).").Default("true").Enum("true", "false")
-	createDepUserGroup         = createDep.Flag("group", "the user group").String()
+	createDepUserGroup         = createDep.Flag("user_group", "the user group").String()
 	createDepTemplate          = createDep.Arg("template", "the tosca template file").Required().File()
 	createDepParameter         = createDep.Arg("parameter", "the parameter to set (json object)").Required().String()
 
