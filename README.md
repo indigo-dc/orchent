@@ -4,7 +4,7 @@
 
 The Orchestrator Command Line Client
 
-## Building orchent
+## Build from source
 
 Before compiling orchent, make sure to install [The Go Programming Language](https://golang.org)
 
@@ -14,9 +14,40 @@ git clone https://github.com/indigo-dc/orchent.git
 cd orchent
 go build -o orchent orchent.go
 
-# Test the installation
-./orchent --help
+# Test it
+./orchent --version
 ```
+
+## Install package on Linux
+
+Download the rpm/deb package from [here](releases) and install it:
+
+````
+# Debian/Ubuntu:
+dpkg -i orchent_1.2.7-rc1_amd64.deb 
+
+# CentOS/Fedora
+rpm -i orchent-1.2.7-1.el7.x86_64.rpm
+````
+Test the installation:
+
+````
+orchent --version
+````
+
+## Install orchent binary on MacOS
+
+Download the darwin package from [here](releases), rename it (optional) and add executable permissions:
+
+````
+mv orchent-amd64-darwin orchent
+chmod +x orchent
+````
+Test it:
+
+````
+./orchent --version
+````
 
 ## Usage
 orchent helps you as much as possible:
