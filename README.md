@@ -11,13 +11,8 @@ Before compiling orchent, make sure to install [The Go Programming Language](htt
 ```
 # Building orchent
 git clone https://github.com/indigo-dc/orchent.git
-cd orchent/utils
-
-# Linux
-./compile.sh
-
-# macOS
-./compile_macos.sh
+cd orchent
+go build -o orchent orchent.go
 
 # Test the installation
 ./orchent --help
@@ -113,20 +108,3 @@ Deployment [eac4dabb-9613-4026-bac7-6075050308e3]:
 For more information and more examples please see the [documentation](https://indigo-dc.gitbooks.io/orchent/)
 
 
-## using Docker
-If your system is not supported you can still use orchent through a lightweight Docker container.
-Download the container in the [release section](https://github.com/indigo-dc/orchent/releases)(choose the latest stable version) and import it using the `docker load` command, e.g.:
-```
-docker load --input orchent_container_1.1.0.tar
-```
-
-After loading the container you can use it to run orchent:
-```
-docker run orchent:1.1.0 --version
-docker run orchent:1.1.0 --help
-```
-
-For information on how to pass environment settings to the docker see
-```
-docker run --help
-```
