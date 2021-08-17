@@ -11,4 +11,3 @@ This version allows to interact with the latest version of the PaaS Orchestrator
 - commands `depcreate` and `depls` provide a new option, `--user_group`, that allows to specify the user group to filter the active deployments or to create a new deployment, respectively.  
 - changed build and packaging strategy - github actions setup 
 
-### Fixed
