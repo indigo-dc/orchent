@@ -1,7 +1,0 @@
-package: github.com/indigo-dc/orchent
-import:
-- package: github.com/dghubble/sling
-  version: 1.1.0
-- package: gopkg.in/alecthomas/kingpin.v2
-- package: github.com/zpatrick/go-config
-- package: github.com/indigo-dc/liboidcagent-go/liboidcagent

@@ -4,24 +4,50 @@
 
 The Orchestrator Command Line Client
 
-## Building orchent
+## Build from source
 
 Before compiling orchent, make sure to install [The Go Programming Language](https://golang.org)
 
 ```
 # Building orchent
 git clone https://github.com/indigo-dc/orchent.git
-cd orchent/utils
+cd orchent
+go build -o orchent orchent.go
 
-# Linux
-./compile.sh
-
-# macOS
-./compile_macos.sh
-
-# Test the installation
-./orchent --help
+# Test it
+./orchent --version
 ```
+
+## Install package on Linux
+
+Download the rpm/deb package from [here](releases) and install it:
+
+````
+# Debian/Ubuntu:
+dpkg -i orchent_1.2.7-rc1_amd64.deb 
+
+# CentOS/Fedora
+rpm -i orchent-1.2.7-1.el7.x86_64.rpm
+````
+Test the installation:
+
+````
+orchent --version
+````
+
+## Install orchent binary on MacOS
+
+Download the darwin package from [here](releases), rename it (optional) and add executable permissions:
+
+````
+mv orchent-amd64-darwin orchent
+chmod +x orchent
+````
+Test it:
+
+````
+./orchent --version
+````
 
 ## Usage
 orchent helps you as much as possible:
@@ -113,20 +139,3 @@ Deployment [eac4dabb-9613-4026-bac7-6075050308e3]:
 For more information and more examples please see the [documentation](https://indigo-dc.gitbooks.io/orchent/)
 
 
-## using Docker
-If your system is not supported you can still use orchent through a lightweight Docker container.
-Download the container in the [release section](https://github.com/indigo-dc/orchent/releases)(choose the latest stable version) and import it using the `docker load` command, e.g.:
-```
-docker load --input orchent_container_1.1.0.tar
-```
-
-After loading the container you can use it to run orchent:
-```
-docker run orchent:1.1.0 --version
-docker run orchent:1.1.0 --help
-```
-
-For information on how to pass environment settings to the docker see
-```
-docker run --help
-```
