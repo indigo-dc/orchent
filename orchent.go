@@ -2,10 +2,12 @@ package main
 
 import (
 	"bufio"
+	"bytes"
 	"crypto/tls"
 	"crypto/x509"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"net/url"
 	"os"
@@ -39,7 +41,7 @@ var (
 	createDepCallback          = createDep.Flag("callback", "the callback url").Default("").String()
 	createDepMaxProvidersRetry = createDep.Flag("maxProvidersRetry", "Maximum number of cloud providers to be used in case of failure (Default: UNBOUNDED).").Uint8()
 	createDepKeepLastAttempt   = createDep.Flag("keepLastAttempt", "In case of failure, keep the resources allocated in the last try (Default: true).").Default("true").Enum("true", "false")
-	createDepUserGroup         = createDep.Flag("user_group", "the user group").String()
+	createDepUserGroup         = createDep.Flag("user_group", "the user group").Short('g').String()
 	createDepTemplate          = createDep.Arg("template", "the tosca template file").Required().File()
 	createDepParameter         = createDep.Arg("parameter", "the parameter to set (json object)").Required().String()
 
@@ -472,6 +474,48 @@ func deployment_create_update(templateFile *os.File, parameter string, callback 
 	}
 }
 
+func get_deployment_extra_info(uuid string) {
+	baseUrl := get_base_url()
+	base := base_connection(baseUrl)
+	orchentError := new(OrchentError)
+	req, err := base.Get("./deployments/" + uuid + "/extrainfo").Request()
+	if err != nil {
+		fmt.Printf("error getting extra info of %s:\n  %s\n", uuid, err)
+		return
+	}
+	// unable to use sling here as the return is plain text and not json
+	cl := client()
+	resp, err := cl.Do(req)
+	if err != nil {
+		fmt.Printf("error requesting extra info of %s:\n  %s\n", uuid, err)
+		return
+	}
+	defer resp.Body.Close()
+	if code := resp.StatusCode; 200 <= code && code <= 299 {
+		var bodyBytes []byte
+		var err error
+		
+		bodyBytes, err = ioutil.ReadAll(resp.Body)
+		if err != nil {
+			return
+		}
+	    
+	    if len(bodyBytes) > 0 {
+			var prettyJSON bytes.Buffer
+			if err = json.Indent(&prettyJSON, bodyBytes, "  ", "  "); err != nil {
+				fmt.Printf("JSON parse error: %v", err)
+				return
+			}
+			fmt.Println("  ====== Deployment extra information: ======\n  " + string(prettyJSON.Bytes()))
+		
+		}
+	    
+	} else {
+		json.NewDecoder(resp.Body).Decode(orchentError)
+		fmt.Printf("error processing extra info of %s:\n  %s\n", uuid, resp.StatusCode)
+	}
+}
+
 func deployment_show(uuid string, verbose bool, base *sling.Sling) {
 	deployment := new(OrchentDeployment)
 	orchentError := new(OrchentError)
@@ -486,6 +530,8 @@ func deployment_show(uuid string, verbose bool, base *sling.Sling) {
 	} else {
 		if verbose {
 			fmt.Printf("%s\n", deployment_to_string(*deployment, 2) )
+			get_deployment_extra_info(uuid)
+			
 		} else {
 			fmt.Printf("%s\n", deployment_to_string(*deployment, 1) )
 		}
