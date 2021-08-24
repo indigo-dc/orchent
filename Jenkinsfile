@@ -104,57 +104,57 @@ pipeline {
                 }
             }
         }
-/*
-        stage('Build RPM/DEB packages') {
-            when {
-                anyOf {
-                    buildingTag()
-                }
-            } 
-            parallel {
-                stage('Build on Ubuntu16.04') {
-                    agent {
-                        label 'bubuntu16'
-                    }
-                    steps {
-                        checkout scm
-                        sh ''' 
-                            echo 'Within build on Ubuntu16.04'
-                            ./utils/build-pkg.sh
-                            mkdir -p UBUNTU
-                            BUILD_PATH="../orchent_build_env/"
-                            echo $BUILD_PATH
-                            find "$BUILD_PATH" -type f -name "orchent*.deb" -exec cp -v -t UBUNTU \'{}\' \';\' 
-                        '''            
-                    }
-                    post {
-                        success {
-                            archiveArtifacts artifacts: '**/UBUNTU/*.deb'                        }
-                    }
-                }
-                stage('Build on CentOS7') {
-                    agent {
-                        label 'bcentos7'
-                    }
-                    steps {
-                        checkout scm
-                        sh '''
-                            echo 'Within build on CentOS7'
-                            ./utils/build-pkg.sh
-                            mkdir -p RPMS
-                            BUILD_PATH="../orchent_build_env/"
-                            find "$BUILD_PATH" -type f -name "orchent*.rpm" -exec cp -v -t RPMS \'{}\' \';\'
-                        '''
-                    }
-                    post {
-                        success {
-                            archiveArtifacts artifacts: '**/RPMS/*.rpm'
-                        }
-                    }
-                }
-            }
-        }
-*/
+
+//        stage('Build RPM/DEB packages') {
+//            when {
+//                anyOf {
+//                    buildingTag()
+//                }
+//            } 
+//            parallel {
+//                stage('Build on Ubuntu16.04') {
+//                    agent {
+//                        label 'bubuntu16'
+//                    }
+//                    steps {
+//                        checkout scm
+//                        sh ''' 
+//                            echo 'Within build on Ubuntu16.04'
+//                            ./utils/build-pkg.sh
+//                            mkdir -p UBUNTU
+//                            BUILD_PATH="../orchent_build_env/"
+//                            echo $BUILD_PATH
+//                            find "$BUILD_PATH" -type f -name "orchent*.deb" -exec cp -v -t UBUNTU \'{}\' \';\' 
+//                        '''            
+//                    }
+//                    post {
+//                        success {
+//                            archiveArtifacts artifacts: '**/UBUNTU/*.deb'                        }
+//                    }
+//                }
+//                stage('Build on CentOS7') {
+//                    agent {
+//                        label 'bcentos7'
+//                    }
+//                    steps {
+//                        checkout scm
+//                        sh '''
+//                            echo 'Within build on CentOS7'
+//                            ./utils/build-pkg.sh
+//                            mkdir -p RPMS
+//                            BUILD_PATH="../orchent_build_env/"
+//                            find "$BUILD_PATH" -type f -name "orchent*.rpm" -exec cp -v -t RPMS \'{}\' \';\'
+//                        '''
+//                    }
+//                    post {
+//                        success {
+//                            archiveArtifacts artifacts: '**/RPMS/*.rpm'
+//                        }
+//                    }
+//                }
+//            }
+//        }
+
         stage('Notifications') {
             when {
                 buildingTag()
