@@ -104,7 +104,7 @@ pipeline {
                 }
             }
         }
-
+/*
         stage('Build RPM/DEB packages') {
             when {
                 anyOf {
@@ -154,7 +154,7 @@ pipeline {
                 }
             }
         }
-
+*/
         stage('Notifications') {
             when {
                 buildingTag()
