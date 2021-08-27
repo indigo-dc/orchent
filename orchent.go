@@ -250,6 +250,7 @@ func deployment_to_string(dep OrchentDeployment, verboseLevel int) string {
 	case 2:
 		endpoint, _ := json.MarshalIndent(dep.CloudProviderEndpoint, "  ", "    ")
 		more_lines := []string{
+			"  outputs: \n  " + fmt.Sprintf("%s", outputs),
 			"  physical id: " + dep.PhysicalId,
 			"  created by: " +  fmt.Sprintf("%s", dep.CreatedBy),
 			"  user group: " + dep.UserGroup,
