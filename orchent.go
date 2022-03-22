@@ -36,8 +36,10 @@ var (
 	showDep        = app.Command("depshow", "show a specific deployment")
 	showDepUuid    = showDep.Arg("uuid", "the uuid of the deployment to display").Required().String()
 	showDepVerbose = showDep.Flag("verbose", "enable verbose output").Default("false").Bool()
+	showDepJson    = showDep.Flag("ojson", "json formatted output").Default("false").Bool()
 
 	createDep                  = app.Command("depcreate", "create a new deployment")
+	createDepJson              = createDep.Flag("ojson", "json formatted output").Default("false").Bool()
 	createDepCallback          = createDep.Flag("callback", "the callback url").Default("").String()
 	createDepMaxProvidersRetry = createDep.Flag("maxProvidersRetry", "Maximum number of cloud providers to be used in case of failure (Default: UNBOUNDED).").Uint8()
 	createDepKeepLastAttempt   = createDep.Flag("keepLastAttempt", "In case of failure, keep the resources allocated in the last try (Default: true).").Default("true").Enum("true", "false")
@@ -419,7 +421,7 @@ func receive_and_print_deploymentlist(complete *sling.Sling, before int, after i
 	}
 }
 
-func deployment_create_update(templateFile *os.File, parameter string, callback string, maxProvidersRetry uint8, keepLastAttempt string, depUuid *string, userGroup string, base *sling.Sling) {
+func deployment_create_update(templateFile *os.File, parameter string, callback string, maxProvidersRetry uint8, keepLastAttempt string, depUuid *string, userGroup string, jsonFormat bool, base *sling.Sling) {
 
 	var parameterMap map[string]interface{}
 	paramErr := json.Unmarshal([]byte(parameter), &parameterMap)
@@ -466,13 +468,20 @@ func deployment_create_update(templateFile *os.File, parameter string, callback 
 	}
 	if is_error(orchentError) {
 		fmt.Printf("error %s deployment:\n %s\n", action, orchentError)
-	} else {
-		if depUuid == nil {
-			fmt.Printf("%s\n", deployment)
-		} else {
-			fmt.Printf("update of deployment %s successfully triggered\n", *depUuid)
-		}
+		return
 	}
+
+	if depUuid == nil {
+		if jsonFormat {
+			data, _ := json.Marshal(deployment)
+			fmt.Printf("%s\n", data)
+		} else {
+			fmt.Printf("%s\n", deployment)
+		}
+	} else {
+		fmt.Printf("update of deployment %s successfully triggered\n", *depUuid)
+	}
+
 }
 
 func get_deployment_extra_info(uuid string) {
@@ -517,7 +526,7 @@ func get_deployment_extra_info(uuid string) {
 	}
 }
 
-func deployment_show(uuid string, verbose bool, base *sling.Sling) {
+func deployment_show(uuid string, verbose bool, jsonFormat bool, base *sling.Sling) {
 	deployment := new(OrchentDeployment)
 	orchentError := new(OrchentError)
 	base = base.Get("./deployments/" + uuid)
@@ -528,15 +537,22 @@ func deployment_show(uuid string, verbose bool, base *sling.Sling) {
 	}
 	if is_error(orchentError) {
 		fmt.Printf("error requesting deployment %s:\n %s\n", uuid, orchentError)
-	} else {
-		if verbose {
-			fmt.Printf("%s\n", deployment_to_string(*deployment, 2) )
-			get_deployment_extra_info(uuid)
-			
-		} else {
-			fmt.Printf("%s\n", deployment_to_string(*deployment, 1) )
-		}
+		return
 	}
+
+	if jsonFormat {
+		data, _ := json.Marshal(deployment)
+		fmt.Printf("%s\n", data)
+		return
+	}
+	if verbose {
+		fmt.Printf("%s\n", deployment_to_string(*deployment, 2))
+		get_deployment_extra_info(uuid)
+
+	} else {
+		fmt.Printf("%s\n", deployment_to_string(*deployment, 1))
+	}
+
 }
 
 func deployment_get_template(uuid string, base *sling.Sling) {
@@ -809,18 +825,18 @@ func main() {
 		baseUrl := get_base_url()
 		base := base_connection(baseUrl)
 		uuid := try_alias_uuid(*showDepUuid, aliases)
-		deployment_show(uuid, *showDepVerbose, base)
+		deployment_show(uuid, *showDepVerbose, *showDepJson, base)
 
 	case createDep.FullCommand():
 		baseUrl := get_base_url()
 		base := base_connection(baseUrl)
-		deployment_create_update(*createDepTemplate, *createDepParameter, *createDepCallback, *createDepMaxProvidersRetry, *createDepKeepLastAttempt, nil, *createDepUserGroup, base)
+		deployment_create_update(*createDepTemplate, *createDepParameter, *createDepCallback, *createDepMaxProvidersRetry, *createDepKeepLastAttempt, nil, *createDepUserGroup, *createDepJson, base)
 
 	case updateDep.FullCommand():
 		baseUrl := get_base_url()
 		base := base_connection(baseUrl)
 		uuid := try_alias_uuid(*updateDepUuid, aliases)
-		deployment_create_update(*updateDepTemplate, *updateDepParameter, *updateDepCallback, *updateDepMaxProvidersRetry, *updateDepKeepLastAttempt, &uuid, "", base)
+		deployment_create_update(*updateDepTemplate, *updateDepParameter, *updateDepCallback, *updateDepMaxProvidersRetry, *updateDepKeepLastAttempt, &uuid, "", *createDepJson, base)
 
 	case depTemplate.FullCommand():
 		baseUrl := get_base_url()
