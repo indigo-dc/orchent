@@ -61,6 +61,10 @@ var (
 	delDep     = app.Command("depdel", "delete a given deployment")
 	delDepUuid = delDep.Arg("uuid", "the uuid of the deployment to delete").Required().String()
 
+	resetDep     = app.Command("depreset", "reset the state of a given deployment")
+	resetDepUuid = resetDep.Arg("uuid", "the uuid of the deployment to reset").Required().String()
+	resetDepStatus = resetDep.Flag("status", "the state of the deployment to be set forcefully (allowed values: DELETE_FAILED)").Default("DELETE_FAILED").Enum("DELETE_FAILED")
+
 	logDep     = app.Command("deplog", "get the log for given deployment")
 	logDepUuid = logDep.Arg("uuid", "the uuid of the deployment").Required().String()
 
@@ -217,7 +221,7 @@ func (depList OrchentDeploymentList) String() string {
 	for _, link := range depList.Links {
 		output = output + fmt.Sprintf("    %s\n", link)
 	}
-	output = output + fmt.Sprintln("\n")
+	output = output + fmt.Sprintf("\n")
 	for _, dep := range depList.Deployments {
 		output = output + deployment_to_string(dep, 0)
 	}
@@ -522,7 +526,7 @@ func get_deployment_extra_info(uuid string) {
 	    
 	} else {
 		json.NewDecoder(resp.Body).Decode(orchentError)
-		fmt.Printf("error processing extra info of %s:\n  %s\n", uuid, resp.StatusCode)
+		fmt.Printf("error processing extra info of %s:\n  %d\n", uuid, resp.StatusCode)
 	}
 }
 
@@ -595,6 +599,30 @@ func deployment_delete(uuid string, base *sling.Sling) {
 		fmt.Printf("deletion of deployment %s successfully triggered\n", uuid)
 	}
 }
+
+type StatusReset struct {
+    Status     string   `json:"status,omitempty"`
+}	
+
+func deployment_reset(uuid string, status string, base *sling.Sling) {
+	orchentError := new(OrchentError)
+
+	body := &StatusReset {
+		Status: status,
+	}
+	base = base.BodyJSON(body).Patch("./deployments/" + uuid)
+	_, err := base.Receive(nil, orchentError)
+	if err != nil {
+		fmt.Printf("error resetting state for deployment %s:\n %s\n", uuid, err)
+		return
+	}
+	if is_error(orchentError) {
+		fmt.Printf("error resetting state for deployment %s:\n %s\n", uuid, orchentError)
+	} else {
+		fmt.Printf("reset of deployment %s successfully triggered\n", uuid)
+	}	
+
+}	
 
 func deployment_log(uuid string, base *sling.Sling) {
 	orchentError := new(OrchentError)
@@ -849,6 +877,12 @@ func main() {
 		base := base_connection(baseUrl)
 		uuid := try_alias_uuid(*delDepUuid, aliases)
 		deployment_delete(uuid, base)
+
+	case resetDep.FullCommand():
+		baseUrl := get_base_url()
+		base := base_connection(baseUrl)
+		uuid := try_alias_uuid(*resetDepUuid, aliases)
+		deployment_reset(uuid, *resetDepStatus, base)	
 
 	case logDep.FullCommand():
 		baseUrl := get_base_url()
