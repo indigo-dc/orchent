@@ -97,7 +97,10 @@ Commands:
   depdel <uuid>
     delete a given deployment
 
-  resls <depployment uuid>
+  depreset [<flags>] <uuid>
+    reset the state of a given deployment
+
+  resls <deployment uuid>
     list the resources of a given deployment
 
   resshow <deployment uuid> <resource uuid>

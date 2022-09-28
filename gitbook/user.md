@@ -306,6 +306,18 @@ Example:
 $ orchent depdel 12345678-1234-1234-1234-123456789abc
 deletion of deployment 12345678-1234-1234-1234-123456789abc successfully triggered
 ```
+#### Reset The State Of A Given Deployment - depreset
+The command `depreset` can be used to reset the deployment state given the deployment id.
+Usage tips: If a deployment remains stuck in DELETE_IN_PROGRESS, you can use this command to manually reset the state of the deployment to DELETE_FAILED. You can then try to delete the deployment again.
+
+```
+$ orchent depreset [--status=DELETE_FAILED] <uuid>
+```
+Example:
+```
+$ orchent depreset 11ed3ce7-ba36-5c2e-9808-02424e495bee
+reset of deployment 11ed3ce7-ba36-5c2e-9808-02424e495bee successfully triggered
+```
 #### Get The Resources Of A Deployment - resls
 Listing all the resources of a deployment is very similar to listing all deployments,
 only that a deployment uuid must be passed:
