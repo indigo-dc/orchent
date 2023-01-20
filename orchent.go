@@ -29,7 +29,7 @@ var (
 
 	lsDep       = app.Command("depls", "list deployments")
 	lsDepUser   = lsDep.Flag("created_by", "the subject@issuer of user to filter the deployments for, 'me' is shorthand for the current user").Short('c').String()
-	lsDepGroup   = lsDep.Flag("user_group", "the user group to filter the deployments for").Short('g').String()
+	lsDepGroup  = lsDep.Flag("user_group", "the user group to filter the deployments for").Short('g').String()
 	lsDepBefore = lsDep.Flag("before", "filter the deployments, they must be created before the given date/time, the format is YYYYMMDDHHMM").Short('b').String()
 	lsDepAfter  = lsDep.Flag("after", "filter the deployments, they must be created after the given date/time, the format is YYYYMMDDHHMM").Short('a').String()
 
@@ -44,8 +44,9 @@ var (
 	createDepMaxProvidersRetry = createDep.Flag("maxProvidersRetry", "Maximum number of cloud providers to be used in case of failure (Default: UNBOUNDED).").Uint8()
 	createDepKeepLastAttempt   = createDep.Flag("keepLastAttempt", "In case of failure, keep the resources allocated in the last try (Default: true).").Default("true").Enum("true", "false")
 	createDepUserGroup         = createDep.Flag("user_group", "the user group").Short('g').String()
+	createDepParameterFile     = createDep.Flag("json-param-file", "the parameter to set (json file)").Short('j').File()
 	createDepTemplate          = createDep.Arg("template", "the tosca template file").Required().File()
-	createDepParameter         = createDep.Arg("parameter", "the parameter to set (json object)").Required().String()
+	createDepParameter         = createDep.Arg("parameter", "the parameter to set (json object)").String()
 
 	updateDep                  = app.Command("depupdate", "update the given deployment")
 	updateDepCallback          = updateDep.Flag("callback", "the callback url").Default("").String()
@@ -61,8 +62,8 @@ var (
 	delDep     = app.Command("depdel", "delete a given deployment")
 	delDepUuid = delDep.Arg("uuid", "the uuid of the deployment to delete").Required().String()
 
-	resetDep     = app.Command("depreset", "reset the state of a given deployment")
-	resetDepUuid = resetDep.Arg("uuid", "the uuid of the deployment to reset").Required().String()
+	resetDep       = app.Command("depreset", "reset the state of a given deployment")
+	resetDepUuid   = resetDep.Arg("uuid", "the uuid of the deployment to reset").Required().String()
 	resetDepStatus = resetDep.Flag("status", "the state of the deployment to be set forcefully (allowed values: DELETE_FAILED)").Default("DELETE_FAILED").Enum("DELETE_FAILED")
 
 	logDep     = app.Command("deplog", "get the log for given deployment")
@@ -75,7 +76,7 @@ var (
 	showResDepUuid = showRes.Arg("deployment uuid", "the uuid of the deployment").Required().String()
 	showResResUuid = showRes.Arg("resource uuid", "the uuid of the resource to show").Required().String()
 
-	testUrl = app.Command("test", "test if the given url is pointing to an orchestrator, please use this to ensure there is no typo in the url.")
+	testUrl   = app.Command("test", "test if the given url is pointing to an orchestrator, please use this to ensure there is no typo in the url.")
 	getConfig = app.Command("showconf", "list the endpoints used by the current orchestrator.")
 )
 
@@ -145,25 +146,25 @@ func deployment_time_to_number(time string) int {
 }
 
 type OrchentCreatedBy struct {
-      Issuer    string    `json:"issuer"`
-      Subject   string    `json:"subject"`
+	Issuer  string `json:"issuer"`
+	Subject string `json:"subject"`
 }
 
 type OrchentDeployment struct {
-	Uuid                   string                 `json:"uuid"`
-	CreationTime           string                 `json:"creationTime"`
-	UpdateTime             string                 `json:"updateTime"`
-	CreatedBy              OrchentCreatedBy       `json:"createdBy"`
-	UserGroup              string                 `json:"userGroup"`
-	PhysicalId             string                 `json:"physicalId"`
-	Status                 string                 `json:"status"`
-	StatusReason           string                 `json:"statusReason"`
-	Task                   string                 `json:"task"`
-	CloudProviderName      string                 `json:"cloudProviderName"`
-	CloudProviderEndpoint  map[string]interface{} `json:"cloudProviderEndpoint"`
-	Callback               string                 `json:"callback"`
-	Outputs                map[string]interface{} `json:"outputs"`
-	Links                  []OrchentLink          `json:"links"`
+	Uuid                  string                 `json:"uuid"`
+	CreationTime          string                 `json:"creationTime"`
+	UpdateTime            string                 `json:"updateTime"`
+	CreatedBy             OrchentCreatedBy       `json:"createdBy"`
+	UserGroup             string                 `json:"userGroup"`
+	PhysicalId            string                 `json:"physicalId"`
+	Status                string                 `json:"status"`
+	StatusReason          string                 `json:"statusReason"`
+	Task                  string                 `json:"task"`
+	CloudProviderName     string                 `json:"cloudProviderName"`
+	CloudProviderEndpoint map[string]interface{} `json:"cloudProviderEndpoint"`
+	Callback              string                 `json:"callback"`
+	Outputs               map[string]interface{} `json:"outputs"`
+	Links                 []OrchentLink          `json:"links"`
 }
 
 type OrchentResource struct {
@@ -234,31 +235,30 @@ func (dep OrchentDeployment) String() string {
 }
 
 func (createdby OrchentCreatedBy) String() string {
-        output := ""
+	output := ""
 	output = output + fmt.Sprintf("  { issuer: %s;", createdby.Issuer)
-        output = output + fmt.Sprintf(" subject: %s }", createdby.Subject)
-        return output
+	output = output + fmt.Sprintf(" subject: %s }", createdby.Subject)
+	return output
 }
-
 
 func deployment_to_string(dep OrchentDeployment, verboseLevel int) string {
 	output := ""
 	outputs, _ := json.MarshalIndent(dep.Outputs, "  ", "    ")
-        lines := []string{"Deployment [" + dep.Uuid + "]:",
-                "  status: " + dep.Status,
-                "  creation time: " + dep.CreationTime,
-                "  update time: " + dep.UpdateTime,
+	lines := []string{"Deployment [" + dep.Uuid + "]:",
+		"  status: " + dep.Status,
+		"  creation time: " + dep.CreationTime,
+		"  update time: " + dep.UpdateTime,
 	}
 	switch verboseLevel {
 	case 0:
 	case 1:
-		lines = append(lines, []string { "  outputs: \n  " + fmt.Sprintf("%s", outputs) }...)
+		lines = append(lines, []string{"  outputs: \n  " + fmt.Sprintf("%s", outputs)}...)
 	case 2:
 		endpoint, _ := json.MarshalIndent(dep.CloudProviderEndpoint, "  ", "    ")
 		more_lines := []string{
 			"  outputs: \n  " + fmt.Sprintf("%s", outputs),
 			"  physical id: " + dep.PhysicalId,
-			"  created by: " +  fmt.Sprintf("%s", dep.CreatedBy),
+			"  created by: " + fmt.Sprintf("%s", dep.CreatedBy),
 			"  user group: " + dep.UserGroup,
 			"  status reason: " + dep.StatusReason,
 			"  task: " + dep.Task,
@@ -268,12 +268,12 @@ func deployment_to_string(dep OrchentDeployment, verboseLevel int) string {
 			"  links:"}
 		lines = append(lines, more_lines...)
 		for _, link := range dep.Links {
-			lines = append(lines, []string { output + fmt.Sprintf("    %s\n", link) }...)
+			lines = append(lines, []string{output + fmt.Sprintf("    %s\n", link)}...)
 		}
 	}
 	for _, line := range lines {
 		output = output + fmt.Sprintf("%s\n", line)
-        }
+	}
 	return output
 
 }
@@ -378,15 +378,15 @@ func time_string_to_int(time string) int {
 
 func deployments_list(base *sling.Sling, user string, group string, before string, after string) {
 	path := "./deployments"
-	query_params := []string {}
+	query_params := []string{}
 	if user != "" {
-		query_params = append(query_params, "createdBy=" + user)
+		query_params = append(query_params, "createdBy="+user)
 	}
 	if group != "" {
-		query_params = append(query_params, "userGroup=" + group)
+		query_params = append(query_params, "userGroup="+group)
 	}
 	if len(query_params) > 0 {
-	   path += "?" + strings.Join(query_params[:], "&")
+		path += "?" + strings.Join(query_params[:], "&")
 	}
 	base = base.Get(path)
 	fmt.Println("retrieving deployment list:")
@@ -422,6 +422,29 @@ func receive_and_print_deploymentlist(complete *sling.Sling, before int, after i
 			receive_and_print_deploymentlist(base_connection(nextPage.HRef), before, after)
 		}
 
+	}
+}
+
+func deployment_create_update_param_file(
+	templateFile *os.File,
+	parameter string,
+	createDepParameterFile *os.File,
+	callback string, maxProvidersRetry uint8, keepLastAttempt string, depUuid *string, userGroup string, jsonFormat bool, base *sling.Sling) {
+
+	if parameter == "" && createDepParameterFile == nil {
+		print("error parsing the parameter. Both the parameter argument and json-param-file flag are not set. Please set at least one of them.\n")
+	} else if parameter != "" && createDepParameterFile == nil {
+		deployment_create_update(templateFile, parameter, callback, maxProvidersRetry, keepLastAttempt, depUuid, userGroup, jsonFormat, base)
+	} else if parameter == "" && createDepParameterFile != nil {
+		data, err := ioutil.ReadFile(createDepParameterFile.Name())
+		if err != nil {
+			fmt.Printf("error reading the parameters fil: %s\n", err)
+			return
+		}
+		jsonString := string(data)
+		deployment_create_update(templateFile, jsonString, callback, maxProvidersRetry, keepLastAttempt, depUuid, userGroup, jsonFormat, base)
+	} else {
+		print("error parsing the parameter. You are passing a parameter file path and a parameter json object. Please use only one of them\n")
 	}
 }
 
@@ -508,22 +531,22 @@ func get_deployment_extra_info(uuid string) {
 	if code := resp.StatusCode; 200 <= code && code <= 299 {
 		var bodyBytes []byte
 		var err error
-		
+
 		bodyBytes, err = ioutil.ReadAll(resp.Body)
 		if err != nil {
 			return
 		}
-	    
-	    if len(bodyBytes) > 0 {
+
+		if len(bodyBytes) > 0 {
 			var prettyJSON bytes.Buffer
 			if err = json.Indent(&prettyJSON, bodyBytes, "  ", "  "); err != nil {
 				fmt.Printf("JSON parse error: %v", err)
 				return
 			}
 			fmt.Println("  ====== Deployment extra information: ======\n  " + string(prettyJSON.Bytes()))
-		
+
 		}
-	    
+
 	} else {
 		json.NewDecoder(resp.Body).Decode(orchentError)
 		fmt.Printf("error processing extra info of %s:\n  %d\n", uuid, resp.StatusCode)
@@ -601,13 +624,13 @@ func deployment_delete(uuid string, base *sling.Sling) {
 }
 
 type StatusReset struct {
-    Status     string   `json:"status,omitempty"`
-}	
+	Status string `json:"status,omitempty"`
+}
 
 func deployment_reset(uuid string, status string, base *sling.Sling) {
 	orchentError := new(OrchentError)
 
-	body := &StatusReset {
+	body := &StatusReset{
 		Status: status,
 	}
 	base = base.BodyJSON(body).Patch("./deployments/" + uuid)
@@ -620,9 +643,9 @@ func deployment_reset(uuid string, status string, base *sling.Sling) {
 		fmt.Printf("error resetting state for deployment %s:\n %s\n", uuid, orchentError)
 	} else {
 		fmt.Printf("reset of deployment %s successfully triggered\n", uuid)
-	}	
+	}
 
-}	
+}
 
 func deployment_log(uuid string, base *sling.Sling) {
 	orchentError := new(OrchentError)
@@ -720,15 +743,15 @@ func get_conf(base *sling.Sling) {
 	_, err := base.Receive(&config, orchentError)
 	if err != nil {
 		fmt.Printf("error requesting orchestrator configuration: %s\n", err)
-                return
-        }
-        if is_error(orchentError) {
-                fmt.Printf("error requesting orchestrator configuration: %s\n", orchentError)
-        } else {
+		return
+	}
+	if is_error(orchentError) {
+		fmt.Printf("error requesting orchestrator configuration: %s\n", orchentError)
+	} else {
 		for key, value := range config {
 			fmt.Printf("    %s: %s\n", key, value)
 		}
-        }
+	}
 }
 
 func settings() map[string]string {
@@ -858,13 +881,13 @@ func main() {
 	case createDep.FullCommand():
 		baseUrl := get_base_url()
 		base := base_connection(baseUrl)
-		deployment_create_update(*createDepTemplate, *createDepParameter, *createDepCallback, *createDepMaxProvidersRetry, *createDepKeepLastAttempt, nil, *createDepUserGroup, *createDepJson, base)
+		deployment_create_update_param_file(*createDepTemplate, *createDepParameter, *createDepParameterFile, *createDepCallback, *createDepMaxProvidersRetry, *createDepKeepLastAttempt, nil, *createDepUserGroup, *createDepJson, base)
 
 	case updateDep.FullCommand():
 		baseUrl := get_base_url()
 		base := base_connection(baseUrl)
 		uuid := try_alias_uuid(*updateDepUuid, aliases)
-		deployment_create_update(*updateDepTemplate, *updateDepParameter, *updateDepCallback, *updateDepMaxProvidersRetry, *updateDepKeepLastAttempt, &uuid, "", *createDepJson, base)
+		deployment_create_update_param_file(*updateDepTemplate, *updateDepParameter, *createDepParameterFile, *updateDepCallback, *updateDepMaxProvidersRetry, *updateDepKeepLastAttempt, &uuid, "", *createDepJson, base)
 
 	case depTemplate.FullCommand():
 		baseUrl := get_base_url()
@@ -882,13 +905,13 @@ func main() {
 		baseUrl := get_base_url()
 		base := base_connection(baseUrl)
 		uuid := try_alias_uuid(*resetDepUuid, aliases)
-		deployment_reset(uuid, *resetDepStatus, base)	
+		deployment_reset(uuid, *resetDepStatus, base)
 
 	case logDep.FullCommand():
 		baseUrl := get_base_url()
 		base := base_connection(baseUrl)
 		uuid := try_alias_uuid(*logDepUuid, aliases)
-		deployment_log(uuid, base)		
+		deployment_log(uuid, base)
 
 	case lsRes.FullCommand():
 		baseUrl := get_base_url()
@@ -909,8 +932,8 @@ func main() {
 		test_url(base)
 
 	case getConfig.FullCommand():
-                baseUrl := get_base_url()
-                base := base_connection(baseUrl)
-                get_conf(base)
-        }
+		baseUrl := get_base_url()
+		base := base_connection(baseUrl)
+		get_conf(base)
+	}
 }
