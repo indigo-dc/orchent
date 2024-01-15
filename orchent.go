@@ -59,6 +59,7 @@ var (
 	templateDepUuid = depTemplate.Arg("uuid", "the uuid of the deployment to get the template").Required().String()
 
 	delDep     = app.Command("depdel", "delete a given deployment")
+	delForce   = delDep.Flag("force", "force the deletion of a deployment skipping the deletion of IAM clients").Default("false").Bool()
 	delDepUuid = delDep.Arg("uuid", "the uuid of the deployment to delete").Required().String()
 
 	resetDep     = app.Command("depreset", "reset the state of a given deployment")
@@ -586,9 +587,10 @@ func deployment_get_template(uuid string, base *sling.Sling) {
 	}
 }
 
-func deployment_delete(uuid string, base *sling.Sling) {
+func deployment_delete(uuid string, delForce bool, base *sling.Sling) {
 	orchentError := new(OrchentError)
-	_, err := base.Delete("./deployments/"+uuid).Receive(nil, orchentError)
+
+	_, err := base.Delete("./deployments/"+uuid+"?force="+strconv.FormatBool(delForce)).Receive(nil, orchentError)
 	if err != nil {
 		fmt.Printf("error deleting deployment %s:\n  %s\n", uuid, err)
 		return
@@ -876,7 +878,7 @@ func main() {
 		baseUrl := get_base_url()
 		base := base_connection(baseUrl)
 		uuid := try_alias_uuid(*delDepUuid, aliases)
-		deployment_delete(uuid, base)
+		deployment_delete(uuid, *delForce, base)
 
 	case resetDep.FullCommand():
 		baseUrl := get_base_url()
