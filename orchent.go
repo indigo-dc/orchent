@@ -59,7 +59,7 @@ var (
 	templateDepUuid = depTemplate.Arg("uuid", "the uuid of the deployment to get the template").Required().String()
 
 	delDep     = app.Command("depdel", "delete a given deployment")
-	delForce   = delDep.Flag("force", "force the deletion of a deployment and skip IAM client/s deletion").Default("false").Bool()
+	delForce   = delDep.Flag("force", "force the deletion of a deployment. Some of the resources created may not be removed").Default("false").Bool()
 	delDepUuid = delDep.Arg("uuid", "the uuid of the deployment to delete").Required().String()
 
 	resetDep     = app.Command("depreset", "reset the state of a given deployment")
