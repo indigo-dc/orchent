@@ -10,32 +10,37 @@ jobs:
 
   build:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        go-version: [1.16]
+        os: [linux, darwin]
+        arch: [amd64, arm64]
     steps:
     - uses: actions/checkout@v2
 
     - name: Set up Go
       uses: actions/setup-go@v2
       with:
-        go-version: 1.16
+        go-version: ${{ matrix.go-version }}
 
     - name: Build
       run: |
         mkdir -p build
-        CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -ldflags '-w -extldflags "-static"' -ldflags "-B 0x$(head -c20 /dev/urandom|od -An -tx1|tr -d ' \n')" -o build/orchent-amd64-linux orchent.go
-        CGO_ENABLED=0  GOOS=darwin GOARCH=amd64 go build -a -ldflags '-w -extldflags "-static"' -o build/orchent-amd64-darwin orchent.go
+        CGO_ENABLED=0 GOOS=linux GOARCH=${{ matrix.arch }} go build -a -ldflags '-w -extldflags "-static"' -ldflags "-B 0x$(head -c20 /dev/urandom|od -An -tx1|tr -d ' \n')" -o build/orchent-${{ matrix.arch }}-linux orchent.go
+        CGO_ENABLED=0 GOOS=darwin GOARCH=${{ matrix.arch }} go build -a -ldflags '-w -extldflags "-static"' -o build/orchent-${{ matrix.arch }}-darwin orchent.go
         
     - name: Prepare packages
       run: |
         mkdir -p .debpkg/usr/bin
-        cp build/orchent-amd64-linux .debpkg/usr/bin/orchent
+        cp build/orchent-${{ matrix.arch }}-linux .debpkg/usr/bin/orchent
         chmod +x .debpkg/usr/bin/orchent
         mkdir -p .rpmpkg/usr/bin
-        cp build/orchent-amd64-linux .rpmpkg/usr/bin/orchent
+        cp build/orchent-${{ matrix.arch }}-linux .rpmpkg/usr/bin/orchent
         chmod +x .rpmpkg/usr/bin/orchent       
 
     - name: Set rpm version
       run: |
-        rpm_version="${github_ref/-/.}"
+        rpm_version="${{ github.ref/-/. }}"
         echo $rpm_version
         echo "REF=$rpm_version" >> $GITHUB_ENV
       env:
@@ -48,7 +53,7 @@ jobs:
         package_root: .debpkg
         maintainer: Marica Antonacci <marica.antonacci@ba.infn.it>
         version: ${{ github.ref }} 
-        arch: 'amd64'
+        arch: ${{ matrix.arch }}
         desc: 'orchent cli'
 
     - name: Create rpm package
@@ -75,4 +80,4 @@ jobs:
         files: |
           *.deb
           *.rpm
-          build/orchent-amd64-darwin
+          build/orchent-${{ matrix.arch }}-darwin
