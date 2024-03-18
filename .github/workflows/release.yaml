@@ -40,7 +40,7 @@ jobs:
 
     - name: Set rpm version
       run: |
-        rpm_version="${{ github.ref/-/. }}"
+        rpm_version="${ github.ref/-/. }"
         echo $rpm_version
         echo "REF=$rpm_version" >> $GITHUB_ENV
       env:
