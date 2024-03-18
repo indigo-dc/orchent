@@ -64,7 +64,7 @@ jobs:
         package_root: .rpmpkg
         maintainer: Marica Antonacci <marica.antonacci@ba.infn.it>
         version: ${{ env.REF }}
-        arch: 'x86_64'
+        arch: ${{ matrix.arch }}
         desc: 'orchent cli'
 
     - name: debug
