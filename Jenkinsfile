@@ -48,11 +48,11 @@ pipeline {
                     createPackage('arm64')
                 
             }
-        }
-        post {
-          always {
-            cleanWs()
-          }
+            post {
+               always {
+                 cleanWs()
+               }
+             }
         }
   }
 }
